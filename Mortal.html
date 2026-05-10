@@ -1,0 +1,3010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOMBAT TRAVEL - Choose Your Realm</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --fire-orange: #ff6b00;
+            --fire-red: #cc0000;
+            --gold: #ffd700;
+            --dark-gold: #b8860b;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --darker: #080808;
+            --blood-red: #8b0000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--black);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--fire-orange); border-radius: 4px; }
+
+        /* =====================
+           PARTICLES
+        ===================== */
+        #particles-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            border-radius: 50%;
+            animation: rise linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes rise {
+            0% { bottom: -20px; opacity: 1; transform: translateX(0) scale(1); }
+            50% { opacity: 0.7; transform: translateX(30px) scale(0.8); }
+            100% { bottom: 100vh; opacity: 0; transform: translateX(-20px) scale(0.2); }
+        }
+
+        /* =====================
+           PAGES
+        ===================== */
+        .page { display: none; min-height: 100vh; }
+        .page.active { display: block; }
+
+        /* =====================
+           INTRO SCREEN
+        ===================== */
+        #introScreen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+            transition: opacity 0.8s ease;
+        }
+
+        #introScreen.fade-out { opacity: 0; pointer-events: none; }
+
+        .intro-dragon {
+            width: 100px; height: 100px;
+            animation: dragonSpin 2s linear infinite;
+        }
+
+        @keyframes dragonSpin {
+            from { transform: rotate(0deg); filter: drop-shadow(0 0 20px #ff6b00); }
+            50% { filter: drop-shadow(0 0 40px #ffd700); }
+            to { transform: rotate(360deg); filter: drop-shadow(0 0 20px #cc0000); }
+        }
+
+        .intro-logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold), var(--fire-orange), var(--fire-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            animation: titlePulse 1s ease infinite alternate;
+        }
+
+        @keyframes titlePulse {
+            from { filter: drop-shadow(0 0 20px rgba(255,107,0,0.5)); }
+            to { filter: drop-shadow(0 0 50px rgba(255,107,0,1)); }
+        }
+
+        .intro-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 12px;
+            color: var(--gold);
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 0.5s forwards;
+        }
+
+        .intro-bar-wrap {
+            width: 280px; height: 3px;
+            background: rgba(255,255,255,0.08);
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .intro-bar {
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, var(--fire-orange), var(--gold), var(--fire-red), transparent);
+            animation: barSlide 1.8s ease forwards;
+        }
+
+        @keyframes barSlide { to { left: 100%; } }
+
+        .intro-loading-text {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 6px;
+            color: #444;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ==============================================
+           LOGIN PAGE
+        ============================================== */
+        #loginPage {
+            min-height: 100vh;
+            display: none;
+        }
+
+        #loginPage.active {
+            display: flex;
+        }
+
+        /* LEFT VISUAL */
+        .login-visual {
+            flex: 1.2;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-visual-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.22) saturate(0.4);
+            transform: scale(1.05);
+            transition: transform 8s ease;
+        }
+
+        .login-visual-bg.zoomed { transform: scale(1.15); }
+
+        .login-visual-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(139,0,0,0.2) 50%, rgba(0,0,0,0.85) 100%);
+        }
+
+        .login-visual-right-fade {
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 200px;
+            background: linear-gradient(90deg, transparent, var(--black));
+            z-index: 2;
+        }
+
+        .login-visual-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .visual-logo-dragon {
+            width: 90px; height: 90px;
+            margin: 0 auto 25px;
+            filter: drop-shadow(0 0 25px rgba(255,107,0,0.8));
+            animation: dragonFloat 4s ease infinite;
+        }
+
+        @keyframes dragonFloat {
+            0%,100% { transform: translateY(0); filter: drop-shadow(0 0 25px rgba(255,107,0,0.8)); }
+            50% { transform: translateY(-12px); filter: drop-shadow(0 0 45px rgba(255,215,0,1)); }
+        }
+
+        .visual-brand {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold), var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+
+        .visual-tagline {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 8px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .visual-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+
+        .vd-line { width: 70px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5)); }
+        .vd-line.r { background: linear-gradient(90deg, rgba(255,215,0,0.5), transparent); }
+        .vd-gem { width: 8px; height: 8px; background: var(--gold); transform: rotate(45deg); box-shadow: 0 0 10px var(--gold); }
+
+        .visual-features {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+            max-width: 320px;
+        }
+
+        .visual-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,107,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .visual-feature:hover {
+            border-color: rgba(255,107,0,0.4);
+            background: rgba(255,107,0,0.06);
+            transform: translateX(5px);
+        }
+
+        .vf-icon { font-size: 1.4rem; min-width: 30px; }
+        .vf-text-title { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 2px; color: var(--gold); font-weight: 700; }
+        .vf-text-sub { font-size: 0.78rem; color: #888; letter-spacing: 1px; margin-top: 2px; }
+
+        .visual-destinations {
+            margin-top: 30px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .dest-track {
+            display: flex;
+            gap: 10px;
+            animation: destScroll 25s linear infinite;
+            width: max-content;
+        }
+
+        @keyframes destScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        .dest-pill {
+            background: rgba(255,107,0,0.08);
+            border: 1px solid rgba(255,107,0,0.2);
+            padding: 5px 14px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--fire-orange);
+            white-space: nowrap;
+            clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        }
+
+        /* RIGHT FORM PANEL */
+        .login-form-panel {
+            flex: 0.85;
+            background: linear-gradient(160deg, #0d0000 0%, #0a0a0a 40%, #080508 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 50px;
+            position: relative;
+            z-index: 2;
+            min-width: 420px;
+        }
+
+        .login-form-panel::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, transparent, var(--fire-orange), var(--gold), var(--fire-orange), transparent);
+        }
+
+        .corner {
+            position: absolute;
+            width: 30px; height: 30px;
+            border-color: rgba(255,107,0,0.4);
+            border-style: solid;
+        }
+
+        .corner.tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+        .corner.tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+        .corner.bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+        .corner.br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+        .form-box { width: 100%; max-width: 380px; }
+
+        .form-tabs {
+            display: flex;
+            margin-bottom: 35px;
+            border-bottom: 2px solid rgba(255,107,0,0.15);
+        }
+
+        .form-tab {
+            flex: 1;
+            padding: 12px 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            text-align: center;
+        }
+
+        .form-tab.active { color: var(--gold); border-bottom-color: var(--fire-orange); text-shadow: 0 0 15px rgba(255,107,0,0.5); }
+        .form-tab:hover:not(.active) { color: #888; }
+
+        .form-content { display: none; }
+        .form-content.active { display: block; animation: fadeInUp 0.5s ease; }
+
+        .form-greeting {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 6px;
+            color: var(--fire-orange);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .form-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle { font-size: 0.85rem; color: #666; letter-spacing: 1px; margin-bottom: 28px; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+
+        .input-label {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .input-wrap { position: relative; display: flex; align-items: center; }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 1rem;
+            color: #444;
+            transition: color 0.3s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            padding: 14px 45px 14px 42px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: all 0.3s ease;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+        }
+
+        .form-input::placeholder { color: #333; }
+
+        .form-input:focus {
+            border-color: var(--fire-orange);
+            background: rgba(255,107,0,0.05);
+            box-shadow: 0 0 20px rgba(255,107,0,0.1);
+        }
+
+        .input-group:focus-within .input-label { color: var(--fire-orange); }
+        .input-group:focus-within .input-icon { color: var(--fire-orange); }
+
+        .eye-toggle {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #444;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+            z-index: 1;
+        }
+
+        .eye-toggle:hover { color: var(--fire-orange); }
+
+        .input-focus-line {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 2px; width: 0;
+            background: linear-gradient(90deg, var(--fire-orange), var(--gold));
+            transition: width 0.4s ease;
+        }
+
+        .input-group.valid .form-input { border-color: rgba(0,200,100,0.3); }
+        .input-group.valid .input-icon { color: #00c864; }
+        .input-group.error .form-input { border-color: rgba(255,50,50,0.5); }
+        .input-group.error .input-icon { color: #ff3232; }
+
+        .input-error-msg {
+            font-size: 0.75rem;
+            color: #ff5555;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .input-group.error .input-error-msg { display: block; }
+
+        .strength-meter { display: flex; gap: 4px; margin-top: 8px; }
+        .strength-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; transition: background 0.3s ease; }
+        .strength-bar.weak { background: #cc0000; }
+        .strength-bar.medium { background: var(--fire-orange); }
+        .strength-bar.strong { background: #00c864; }
+        .strength-text { font-size: 0.7rem; letter-spacing: 2px; margin-top: 5px; color: #666; }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .check-group { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+
+        .custom-check {
+            width: 18px; height: 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,107,0,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            clip-path: polygon(3px 0%, 100% 0%, calc(100% - 3px) 100%, 0% 100%);
+        }
+
+        .custom-check.checked { background: linear-gradient(135deg, var(--fire-red), var(--fire-orange)); border-color: var(--fire-orange); }
+        .custom-check .check-icon { font-size: 0.7rem; display: none; }
+        .custom-check.checked .check-icon { display: block; }
+
+        .check-label { font-size: 0.8rem; color: #777; letter-spacing: 1px; cursor: pointer; }
+        .check-label a { color: var(--fire-orange); text-decoration: none; }
+        .check-label a:hover { color: var(--gold); }
+
+        .form-extras {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .forgot-link {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--fire-orange);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-link:hover { color: var(--gold); }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: #fff;
+            border: none;
+            padding: 16px 30px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 22px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--gold), var(--fire-orange));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .submit-btn:hover::before { opacity: 1; }
+        .submit-btn:hover { color: var(--black); box-shadow: 0 0 40px rgba(255,107,0,0.6); transform: translateY(-2px); }
+        .submit-btn span { position: relative; z-index: 1; }
+
+        .submit-btn.loading span { opacity: 0; }
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            animation: spin 0.8s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+        .or-divider { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .or-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+        .or-text { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 4px; color: #444; }
+
+        .social-logins { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
+
+        .social-login-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #888;
+            padding: 11px 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        }
+
+        .social-login-btn:hover { border-color: rgba(255,107,0,0.3); color: #fff; background: rgba(255,107,0,0.05); transform: translateY(-2px); }
+
+        .switch-text { text-align: center; font-size: 0.82rem; color: #555; letter-spacing: 1px; }
+
+        .switch-link {
+            color: var(--fire-orange);
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            transition: color 0.3s ease;
+        }
+
+        .switch-link:hover { color: var(--gold); }
+
+        /* =====================
+           SUCCESS OVERLAY
+        ===================== */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.97);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-overlay.show { display: flex; }
+
+        .success-icon { font-size: 5rem; animation: successBounce 0.6s ease; }
+
+        @keyframes successBounce {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            60% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .success-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold), var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideUp 0.6s ease 0.2s both;
+        }
+
+        .success-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            color: var(--gold);
+            animation: slideUp 0.6s ease 0.4s both;
+        }
+
+        .success-desc {
+            font-size: 1rem;
+            color: #888;
+            letter-spacing: 1px;
+            max-width: 420px;
+            line-height: 1.8;
+            animation: slideUp 0.6s ease 0.6s both;
+        }
+
+        .success-enter-btn {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: #fff;
+            border: none;
+            padding: 16px 50px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            cursor: pointer;
+            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease 0.8s both;
+        }
+
+        .success-enter-btn:hover {
+            background: linear-gradient(135deg, var(--gold), var(--fire-orange));
+            color: var(--black);
+            box-shadow: 0 0 40px rgba(255,107,0,0.6);
+            transform: translateY(-3px);
+        }
+
+        .fireworks-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+        .firework {
+            position: absolute;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            animation: fwExplode 1.5s ease forwards;
+        }
+
+        @keyframes fwExplode {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* =====================
+           TOAST
+        ===================== */
+        .toast {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            background: rgba(10,5,5,0.98);
+            border: 1px solid var(--fire-orange);
+            border-left: 4px solid var(--fire-orange);
+            padding: 15px 20px;
+            z-index: 99998;
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+            transform: translateX(200%);
+            transition: transform 0.4s ease;
+            max-width: 300px;
+        }
+
+        .toast.error-toast { border-color: var(--fire-red); border-left-color: var(--fire-red); }
+        .toast.success-toast { border-color: #00c864; border-left-color: #00c864; }
+        .toast.show { transform: translateX(0); }
+        .toast-title { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; }
+        .toast-msg { font-size: 0.8rem; color: #aaa; letter-spacing: 1px; }
+
+        /* =====================
+           FORGOT MODAL
+        ===================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9997;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: linear-gradient(135deg, #0d0000, #0a0a0a);
+            border: 1px solid rgba(255,107,0,0.3);
+            padding: 50px 40px;
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 25px) 0, 100% 25px, 100% 100%, 25px 100%, 0 calc(100% - 25px));
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal-box { transform: scale(1); }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: rgba(204,0,0,0.4);
+            border: 1px solid rgba(204,0,0,0.6);
+            color: #fff;
+            width: 30px; height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover { background: var(--fire-red); }
+        .modal-icon { font-size: 3rem; margin-bottom: 15px; }
+        .modal-title { font-family: 'Cinzel Decorative', cursive; font-size: 1.5rem; background: linear-gradient(135deg, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+        .modal-desc { font-size: 0.85rem; color: #777; letter-spacing: 1px; line-height: 1.7; margin-bottom: 25px; }
+
+        /* ==============================================
+           MAIN SITE — NAVBAR
+        ============================================== */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0,0,0,0.98) 0%, rgba(10,10,10,0.9) 100%);
+            border-bottom: 2px solid var(--fire-orange);
+            box-shadow: 0 0 30px rgba(255,107,0,0.4);
+            padding: 0 40px;
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), var(--fire-orange), var(--fire-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .nav-logo span {
+            display: block;
+            font-size: 0.5rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 8px;
+            -webkit-text-fill-color: var(--gold);
+            opacity: 0.8;
+            text-align: center;
+            margin-top: -5px;
+        }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 2px;
+            background: linear-gradient(90deg, var(--fire-orange), var(--gold));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover { color: var(--gold); text-shadow: 0 0 15px var(--fire-orange); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-user-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+        }
+
+        .nav-avatar {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid rgba(255,107,0,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .nav-avatar:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+
+        .nav-logout {
+            background: rgba(204,0,0,0.2);
+            border: 1px solid rgba(204,0,0,0.4);
+            color: #ff8888;
+            padding: 6px 16px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        }
+
+        .nav-logout:hover { background: rgba(204,0,0,0.5); color: #fff; }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange)) !important;
+            color: #fff !important;
+            padding: 8px 20px !important;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+        }
+
+        .nav-btn:hover { background: linear-gradient(135deg, var(--fire-orange), var(--gold)) !important; color: var(--black) !important; }
+        .nav-btn::after { display: none !important; }
+
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+        .hamburger span { display: block; width: 25px; height: 2px; background: var(--fire-orange); transition: all 0.3s ease; }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 70px; left: 0; right: 0;
+            background: rgba(5,0,0,0.98);
+            border-bottom: 2px solid var(--fire-orange);
+            z-index: 999;
+            padding: 20px;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a { color: #ccc; text-decoration: none; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 4px; padding: 10px 0; border-bottom: 1px solid rgba(255,107,0,0.1); }
+        .mobile-menu a:hover { color: var(--gold); }
+
+        /* ==============================================
+           HERO
+        ============================================== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 100%, rgba(204,0,0,0.4) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 50%, rgba(255,107,0,0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #000 0%, #0a0000 40%, #1a0000 70%, #000 100%);
+        }
+
+        .hero-image-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.12;
+            filter: saturate(0) contrast(1.5);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,107,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,107,0,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 12px;
+            color: var(--fire-orange);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInDown 1s ease 0.5s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.7s forwards;
+        }
+
+        .hero-title .line1 {
+            display: block;
+            background: linear-gradient(135deg, #fff 0%, var(--gold) 50%, var(--fire-orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(255,107,0,0.5));
+        }
+
+        .hero-title .line2 {
+            display: block;
+            background: linear-gradient(135deg, var(--fire-red) 0%, var(--fire-orange) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 0.7em;
+            letter-spacing: 15px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            letter-spacing: 4px;
+            margin: 20px 0 40px;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1s forwards;
+        }
+
+        .hero-subtitle span { color: var(--gold); }
+
+        .hero-welcome {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 5px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.9s forwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1.2s forwards;
+        }
+
+        .mk-logo-hero {
+            width: 120px; height: 120px;
+            margin: 0 auto 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.3s forwards, glowPulse 3s ease infinite 1s;
+        }
+
+        .mk-logo-hero svg { width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--fire-orange)); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--fire-red) 0%, var(--fire-orange) 100%);
+            color: #fff;
+            padding: 16px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            clip-path: polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--gold), var(--fire-orange)); opacity: 0; transition: opacity 0.3s ease; }
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary:hover { color: var(--black); box-shadow: 0 0 30px rgba(255,107,0,0.7); transform: translateY(-3px); }
+        .btn-primary span { position: relative; z-index: 1; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--gold);
+            padding: 14px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border: 2px solid var(--gold);
+            cursor: pointer;
+            clip-path: polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover { background: var(--gold); color: var(--black); transform: translateY(-3px); }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scroll-indicator span { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 5px; color: var(--fire-orange); }
+
+        .scroll-arrow {
+            width: 20px; height: 20px;
+            border-right: 2px solid var(--fire-orange);
+            border-bottom: 2px solid var(--fire-orange);
+            transform: rotate(45deg);
+            animation: scrollBounce 1.5s infinite;
+        }
+
+        /* ==============================================
+           SECTION HEADERS
+        ============================================== */
+        .section-header { text-align: center; padding: 80px 20px 50px; position: relative; }
+
+        .section-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 10px;
+            color: var(--fire-orange);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold), var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .section-divider { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px auto; }
+        .divider-line { width: 100px; height: 1px; background: linear-gradient(90deg, transparent, var(--fire-orange)); }
+        .divider-line.right { background: linear-gradient(90deg, var(--fire-orange), transparent); }
+        .divider-diamond { width: 12px; height: 12px; background: var(--gold); transform: rotate(45deg); box-shadow: 0 0 10px var(--gold); }
+        .section-desc { font-size: 1rem; color: #888; max-width: 600px; margin: 0 auto; letter-spacing: 2px; line-height: 1.8; }
+
+        /* ==============================================
+           CITIES GRID
+        ============================================== */
+        .realms-section { position: relative; z-index: 1; padding: 0 20px 80px; }
+
+        .realms-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 60px;
+            border-bottom: 2px solid rgba(255,107,0,0.2);
+        }
+
+        .realm-tab {
+            padding: 15px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+
+        .realm-tab.active { color: var(--gold); border-bottom-color: var(--fire-orange); text-shadow: 0 0 20px var(--fire-orange); }
+        .realm-tab:hover { color: var(--fire-orange); }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* CITY CARD */
+        .city-card {
+            position: relative;
+            height: 420px;
+            cursor: pointer;
+            overflow: hidden;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+            transition: transform 0.4s ease;
+            background: #111;
+        }
+
+        .city-card:hover { transform: translateY(-10px) scale(1.02); }
+
+        .city-card-img {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.6s ease, filter 0.6s ease;
+            filter: saturate(0.8) contrast(1.1) brightness(0.9);
+        }
+
+        .city-card:hover .city-card-img { transform: scale(1.12); filter: saturate(1) contrast(1.2) brightness(1); }
+
+        .city-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 35%, rgba(120,0,0,0.25) 65%, rgba(0,0,0,0.94) 100%);
+            z-index: 1;
+            transition: background 0.4s ease;
+        }
+
+        .city-card:hover .city-card-overlay { background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.25) 35%, rgba(180,0,0,0.35) 65%, rgba(0,0,0,0.96) 100%); }
+
+        .city-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+            transition: border-color 0.3s ease;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .city-card:hover::before { border-color: var(--fire-orange); box-shadow: inset 0 0 40px rgba(255,107,0,0.15), 0 0 40px rgba(255,107,0,0.25); }
+
+        .city-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--fire-orange), var(--gold), var(--fire-orange), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .city-card:hover::after { opacity: 1; }
+
+        .city-card-content {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 30px 25px 25px;
+            z-index: 2;
+            transform: translateY(60px);
+            transition: transform 0.4s ease;
+        }
+
+        .city-card:hover .city-card-content { transform: translateY(0); }
+
+        .city-country-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 5px;
+            color: var(--fire-orange);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .city-country-tag::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--fire-orange); }
+
+        .city-name {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            line-height: 1.1;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+        }
+
+        .city-tagline { font-size: 0.85rem; color: #ccc; letter-spacing: 1px; margin-bottom: 20px; line-height: 1.5; opacity: 0; transition: opacity 0.4s ease 0.1s; }
+        .city-card:hover .city-tagline { opacity: 1; }
+
+        .city-stats { display: flex; gap: 20px; margin-bottom: 20px; opacity: 0; transition: opacity 0.4s ease 0.15s; }
+        .city-card:hover .city-stats { opacity: 1; }
+
+        .city-stat { display: flex; flex-direction: column; }
+        .stat-value { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); font-weight: 700; }
+        .stat-label { font-size: 0.65rem; color: #999; letter-spacing: 3px; text-transform: uppercase; }
+
+        .city-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: #fff;
+            padding: 10px 25px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.2s, transform 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .city-card:hover .city-btn { opacity: 1; }
+        .city-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+        .city-card.featured { grid-column: span 2; height: 500px; }
+        .city-card.featured .city-name { font-size: 2.5rem; }
+
+        .sector-label {
+            position: absolute;
+            top: 20px; left: 20px;
+            background: linear-gradient(135deg, rgba(204,0,0,0.85), rgba(139,0,0,0.85));
+            padding: 5px 15px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: var(--gold);
+            clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+            z-index: 2;
+        }
+
+        /* SPECIAL CITY CARDS */
+        .city-card.ladakh-card { border: 1px solid rgba(0,150,255,0.2); }
+        .city-card.ladakh-card:hover::before { border-color: #00aaff; box-shadow: inset 0 0 50px rgba(0,150,255,0.1), 0 0 50px rgba(0,150,255,0.3); }
+        .city-card.ladakh-card:hover::after { background: linear-gradient(90deg, transparent, #00aaff, #fff, #00aaff, transparent); }
+        .city-card.ladakh-card .city-country-tag { color: #00d4ff; }
+        .city-card.ladakh-card .city-country-tag::before { background: #00d4ff; }
+        .city-card.ladakh-card .stat-value { color: #00d4ff; }
+        .city-card.ladakh-card .city-card-overlay { background: linear-gradient(180deg, rgba(0,0,30,0.1) 0%, rgba(0,20,60,0.2) 35%, rgba(0,50,120,0.3) 65%, rgba(0,0,20,0.95) 100%); }
+        .city-card.ladakh-card .city-btn { background: linear-gradient(135deg, #005599, #0099ee); }
+
+        .city-card.varanasi-card { border: 1px solid rgba(255,165,0,0.2); }
+        .city-card.varanasi-card:hover::before { border-color: #ff8c00; box-shadow: inset 0 0 50px rgba(255,140,0,0.1), 0 0 50px rgba(255,140,0,0.35); }
+        .city-card.varanasi-card:hover::after { background: linear-gradient(90deg, transparent, #ff8c00, #ffd700, #ff8c00, transparent); }
+        .city-card.varanasi-card .city-country-tag { color: #ffa500; }
+        .city-card.varanasi-card .city-country-tag::before { background: #ffa500; }
+        .city-card.varanasi-card .stat-value { color: #ffd700; }
+        .city-card.varanasi-card .city-card-overlay { background: linear-gradient(180deg, rgba(30,10,0,0.05) 0%, rgba(50,20,0,0.15) 35%, rgba(120,60,0,0.3) 65%, rgba(20,5,0,0.95) 100%); }
+
+        .city-card.mysore-card { border: 1px solid rgba(180,100,255,0.2); }
+        .city-card.mysore-card:hover::before { border-color: #cc88ff; box-shadow: inset 0 0 50px rgba(180,100,255,0.1), 0 0 50px rgba(180,100,255,0.3); }
+        .city-card.mysore-card:hover::after { background: linear-gradient(90deg, transparent, #cc88ff, #ffd700, #cc88ff, transparent); }
+        .city-card.mysore-card .city-country-tag { color: #cc88ff; }
+        .city-card.mysore-card .city-country-tag::before { background: #cc88ff; }
+        .city-card.mysore-card .stat-value { color: #ffd700; }
+        .city-card.mysore-card .city-card-overlay { background: linear-gradient(180deg, rgba(10,0,20,0.05) 0%, rgba(30,0,60,0.2) 35%, rgba(80,0,120,0.3) 65%, rgba(5,0,15,0.96) 100%); }
+        .city-card.mysore-card .city-btn { background: linear-gradient(135deg, #6600aa, #aa44ff); }
+
+        .city-card.amritsar-card { border: 1px solid rgba(255,215,0,0.25); }
+        .city-card.amritsar-card:hover::before { border-color: #ffd700; box-shadow: inset 0 0 60px rgba(255,215,0,0.12), 0 0 60px rgba(255,215,0,0.4); }
+        .city-card.amritsar-card:hover::after { background: linear-gradient(90deg, transparent, #ffd700, #fff, #ffd700, transparent); }
+        .city-card.amritsar-card .city-country-tag { color: #ffd700; }
+        .city-card.amritsar-card .city-country-tag::before { background: #ffd700; }
+        .city-card.amritsar-card .stat-value { color: #ffd700; }
+        .city-card.amritsar-card .city-card-overlay { background: linear-gradient(180deg, rgba(10,8,0,0.05) 0%, rgba(20,15,0,0.15) 35%, rgba(80,60,0,0.28) 65%, rgba(10,8,0,0.96) 100%); }
+        .city-card.amritsar-card .city-btn { background: linear-gradient(135deg, #8B6914, #DAA520); color: #000; }
+
+        .highlight-badge {
+            position: absolute;
+            top: 20px; right: 20px;
+            z-index: 3;
+            padding: 4px 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            font-weight: 700;
+            clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+            text-transform: uppercase;
+            animation: badgePulse 2s ease infinite;
+        }
+
+        .badge-blue { background: linear-gradient(135deg, #003399, #0077cc); color: #00d4ff; }
+        .badge-saffron { background: linear-gradient(135deg, #8B3A00, #cc5500); color: #ffd700; }
+        .badge-purple { background: linear-gradient(135deg, #440066, #880099); color: #dd99ff; }
+        .badge-gold { background: linear-gradient(135deg, #4a3800, #8B6914); color: #ffd700; }
+
+        @keyframes badgePulse { 0%,100% { box-shadow: 0 0 8px currentColor; } 50% { box-shadow: 0 0 20px currentColor; } }
+
+        .img-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 0;
+        }
+
+        .img-fallback-icon { font-size: 5rem; }
+        .img-fallback-text { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 5px; color: rgba(255,255,255,0.5); }
+        .ladakh-fallback { background: linear-gradient(160deg, #001830 0%, #003366 30%, #0055aa 60%, #336699 80%, #1a3a55 100%); }
+        .varanasi-fallback { background: linear-gradient(160deg, #1a0800 0%, #4a1500 30%, #8B3A00 60%, #cc5500 80%, #3a1000 100%); }
+        .mysore-fallback { background: linear-gradient(160deg, #0a0015 0%, #2d0050 30%, #5a0099 60%, #8800cc 80%, #3d006a 100%); }
+        .amritsar-fallback { background: linear-gradient(160deg, #0d0a00 0%, #2a2000 30%, #554000 60%, #887020 80%, #3a2d00 100%); }
+
+        /* ==============================================
+           EXPERIENCE SECTION
+        ============================================== */
+        .experience-section { padding: 80px 20px; position: relative; z-index: 1; }
+
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .exp-card {
+            background: linear-gradient(135deg, rgba(20,5,5,0.9), rgba(10,10,10,0.9));
+            border: 1px solid rgba(255,107,0,0.15);
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+        }
+
+        .exp-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(255,107,0,0.05), transparent); opacity: 0; transition: opacity 0.4s ease; }
+        .exp-card:hover::before { opacity: 1; }
+        .exp-card:hover { border-color: rgba(255,107,0,0.5); transform: translateY(-10px); box-shadow: 0 20px 60px rgba(255,107,0,0.15); }
+
+        .exp-icon { font-size: 3rem; margin-bottom: 20px; }
+        .exp-title { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: var(--gold); letter-spacing: 3px; margin-bottom: 15px; }
+        .exp-desc { font-size: 0.9rem; color: #888; line-height: 1.8; letter-spacing: 1px; }
+
+        /* ==============================================
+           FEATURED SECTION
+        ============================================== */
+        .featured-section {
+            background: linear-gradient(180deg, var(--black) 0%, var(--darker) 50%, var(--black) 100%);
+            padding: 80px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .featured-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--fire-orange), var(--gold), var(--fire-orange), transparent); }
+        .featured-section::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--fire-orange), var(--gold), var(--fire-orange), transparent); }
+
+        /* ==============================================
+           STATS BANNER
+        ============================================== */
+        .stats-banner {
+            background: linear-gradient(135deg, rgba(139,0,0,0.3), rgba(0,0,0,0.9), rgba(139,0,0,0.3));
+            border-top: 1px solid rgba(255,107,0,0.3);
+            border-bottom: 1px solid rgba(255,107,0,0.3);
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; max-width: 900px; margin: 0 auto; }
+
+        .stat-item { text-align: center; padding: 20px; border-right: 1px solid rgba(255,107,0,0.2); }
+        .stat-item:last-child { border-right: none; }
+
+        .stat-big-value {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-big-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 5px; color: #888; text-transform: uppercase; }
+
+        /* ==============================================
+           TESTIMONIALS
+        ============================================== */
+        .testimonials-section { padding: 80px 20px; position: relative; z-index: 1; }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: rgba(15,5,5,0.8);
+            border: 1px solid rgba(255,215,0,0.1);
+            padding: 35px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card::before { content: '"'; position: absolute; top: 15px; right: 20px; font-size: 6rem; font-family: 'Cinzel Decorative', cursive; color: rgba(255,107,0,0.1); line-height: 1; }
+        .testimonial-card:hover { border-color: rgba(255,215,0,0.3); box-shadow: 0 10px 40px rgba(255,107,0,0.1); }
+        .testimonial-stars { color: var(--gold); font-size: 1rem; margin-bottom: 15px; letter-spacing: 3px; }
+        .testimonial-text { font-size: 0.95rem; color: #bbb; line-height: 1.8; margin-bottom: 25px; font-style: italic; }
+
+        .testimonial-author { display: flex; align-items: center; gap: 15px; }
+
+        .author-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--fire-orange); filter: saturate(0.5); }
+        .author-name { font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+        .author-location { font-size: 0.75rem; color: #666; letter-spacing: 2px; }
+
+        /* ==============================================
+           NEWSLETTER
+        ============================================== */
+        .newsletter-section {
+            position: relative;
+            padding: 100px 20px;
+            z-index: 1;
+            background: radial-gradient(ellipse at 50% 50%, rgba(139,0,0,0.2) 0%, transparent 70%);
+            text-align: center;
+        }
+
+        .newsletter-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+        .newsletter-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            background: linear-gradient(135deg, var(--gold), var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .newsletter-desc { color: #888; letter-spacing: 2px; margin-bottom: 40px; font-size: 0.95rem; }
+
+        .newsletter-form { display: flex; max-width: 500px; margin: 0 auto; }
+
+        .newsletter-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,107,0,0.3);
+            border-right: none;
+            color: #fff;
+            padding: 15px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .newsletter-input::placeholder { color: #555; }
+        .newsletter-input:focus { border-color: var(--fire-orange); }
+
+        .newsletter-btn {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: #fff;
+            padding: 15px 30px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-btn:hover { background: linear-gradient(135deg, var(--fire-orange), var(--gold)); color: var(--black); }
+
+        /* ==============================================
+           FOOTER
+        ============================================== */
+        footer {
+            background: var(--darker);
+            border-top: 2px solid rgba(255,107,0,0.3);
+            padding: 60px 40px 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-inner { max-width: 1400px; margin: 0 auto; }
+
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; margin-bottom: 50px; }
+
+        .footer-brand .nav-logo { font-size: 1.3rem; margin-bottom: 20px; display: block; cursor: default; }
+        .footer-desc { color: #666; font-size: 0.9rem; line-height: 1.8; letter-spacing: 1px; margin-bottom: 25px; }
+
+        .footer-social { display: flex; gap: 12px; }
+
+        .social-btn {
+            width: 40px; height: 40px;
+            background: rgba(255,107,0,0.1);
+            border: 1px solid rgba(255,107,0,0.3);
+            color: var(--fire-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+        }
+
+        .social-btn:hover { background: var(--fire-orange); color: var(--black); }
+
+        .footer-col-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,107,0,0.2);
+        }
+
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a::before { content: '▶'; font-size: 0.5rem; color: var(--fire-orange); opacity: 0; transition: opacity 0.3s ease; }
+        .footer-links a:hover { color: var(--fire-orange); padding-left: 5px; }
+        .footer-links a:hover::before { opacity: 1; }
+
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 1px solid rgba(255,107,0,0.15); }
+        .footer-copy { font-size: 0.75rem; color: #555; letter-spacing: 2px; }
+        .footer-copy span { color: var(--fire-orange); }
+
+        /* ==============================================
+           CITY MODAL
+        ============================================== */
+        .city-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .city-modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .city-modal {
+            background: linear-gradient(135deg, rgba(15,5,5,0.99), rgba(10,10,10,0.99));
+            border: 1px solid rgba(255,107,0,0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+        }
+
+        .city-modal-overlay.active .city-modal { transform: scale(1); }
+
+        .city-modal-img { width: 100%; height: 300px; object-fit: cover; filter: saturate(0.8); }
+
+        .city-modal-content { padding: 40px; }
+        .city-modal-tag { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 6px; color: var(--fire-orange); margin-bottom: 10px; }
+        .city-modal-title { font-family: 'Cinzel Decorative', cursive; font-size: 2rem; color: #fff; margin-bottom: 20px; }
+        .city-modal-desc { color: #999; line-height: 1.9; margin-bottom: 30px; font-size: 0.95rem; }
+
+        .city-modal-highlights { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin-bottom: 30px; }
+
+        .city-modal-highlight { background: rgba(255,107,0,0.05); border: 1px solid rgba(255,107,0,0.15); padding: 15px; text-align: center; }
+        .city-modal-highlight-icon { font-size: 1.5rem; margin-bottom: 5px; }
+        .city-modal-highlight-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; color: var(--gold); }
+        .city-modal-highlight-value { font-size: 0.8rem; color: #aaa; margin-top: 5px; }
+
+        .city-modal-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: rgba(204,0,0,0.5);
+            border: 1px solid var(--fire-red);
+            color: #fff;
+            width: 35px; height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .city-modal-close:hover { background: var(--fire-red); }
+        .city-modal-actions { display: flex; gap: 15px; }
+
+        /* ==============================================
+           SEARCH
+        ============================================== */
+        .search-bar { max-width: 600px; margin: 0 auto 50px; display: flex; position: relative; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--fire-orange); font-size: 1rem; z-index: 1; }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,107,0,0.3);
+            border-right: none;
+            color: #fff;
+            padding: 15px 20px 15px 45px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input::placeholder { color: #444; }
+        .search-input:focus { border-color: var(--fire-orange); }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            border: none;
+            color: #fff;
+            padding: 15px 25px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover { background: linear-gradient(135deg, var(--fire-orange), var(--gold)); color: var(--black); }
+
+        /* ==============================================
+           ANIMATIONS
+        ============================================== */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scrollBounce { 0%,100% { transform: rotate(45deg) translateY(0); } 50% { transform: rotate(45deg) translateY(8px); } }
+        @keyframes glowPulse { 0%,100% { filter: drop-shadow(0 0 20px rgba(255,107,0,0.5)); } 50% { filter: drop-shadow(0 0 40px rgba(255,107,0,1)) drop-shadow(0 0 60px rgba(204,0,0,0.5)); } }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: grid; }
+
+        /* ==============================================
+           RESPONSIVE
+        ============================================== */
+        @media (max-width: 1024px) {
+            .city-card.featured { grid-column: span 1; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .login-visual { display: none; }
+            .login-form-panel { flex: 1; min-width: unset; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hamburger { display: flex; }
+            .cities-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 15px; text-align: center; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .city-modal-highlights { grid-template-columns: repeat(2,1fr); }
+            .realms-tabs { overflow-x: auto; justify-content: flex-start; }
+            .realm-tab { padding: 12px 25px; white-space: nowrap; }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-input { border-right: 1px solid rgba(255,107,0,0.3); border-bottom: none; }
+            .login-form-panel { padding: 30px 25px; min-width: unset; }
+            .input-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            nav { padding: 0 20px; }
+            .nav-logo { font-size: 1.2rem; }
+            .city-modal-highlights { grid-template-columns: 1fr; }
+            .login-form-panel { padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div id="particles-container"></div>
+
+<!-- INTRO SCREEN -->
+<div id="introScreen">
+    <svg class="intro-dragon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="ig" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffd700"/>
+                <stop offset="50%" stop-color="#ff6b00"/>
+                <stop offset="100%" stop-color="#cc0000"/>
+            </linearGradient>
+        </defs>
+        <ellipse cx="50" cy="50" rx="35" ry="35" fill="none" stroke="url(#ig)" stroke-width="2" opacity="0.5"/>
+        <path d="M50 15 L55 30 L70 25 L60 38 L75 40 L60 48 L70 60 L55 55 L55 70 L50 60 L45 70 L45 55 L30 60 L40 48 L25 40 L40 38 L30 25 L45 30 Z" fill="url(#ig)" opacity="0.9"/>
+        <circle cx="50" cy="50" r="8" fill="#000" stroke="url(#ig)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="3" fill="url(#ig)"/>
+        <path d="M50 5 L52 12 L50 10 L48 12 Z" fill="#ffd700"/>
+        <path d="M95 50 L88 52 L90 50 L88 48 Z" fill="#ffd700"/>
+        <path d="M50 95 L52 88 L50 90 L48 88 Z" fill="#ffd700"/>
+        <path d="M5 50 L12 52 L10 50 L12 48 Z" fill="#ffd700"/>
+    </svg>
+    <div class="intro-logo">KOMBAT<br>TRAVEL</div>
+    <div class="intro-sub">Choose Your Realm — Conquer The World</div>
+    <div class="intro-bar-wrap"><div class="intro-bar"></div></div>
+    <div class="intro-loading-text">LOADING YOUR DESTINY...</div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+    <div class="fireworks-container" id="fireworksContainer"></div>
+    <div class="success-icon">⚔️</div>
+    <div class="success-title" id="successTitle">WARRIOR VERIFIED</div>
+    <div class="success-sub" id="successSub">ACCESS GRANTED TO ALL REALMS</div>
+    <p class="success-desc" id="successDesc">Your credentials have been confirmed. Prepare for your legendary journey.</p>
+    <button class="success-enter-btn" onclick="enterMainSite()">ENTER THE REALM →</button>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeForgotModal()">✕</button>
+        <div class="modal-icon">🔑</div>
+        <div class="modal-title">Reclaim Access</div>
+        <p class="modal-desc">Enter your email and we shall dispatch a battle-order to restore your realm access.</p>
+        <div class="input-group">
+            <div class="input-wrap">
+                <span class="input-icon">✉️</span>
+                <input type="email" class="form-input" placeholder="warrior@realm.com" id="forgotEmail">
+            </div>
+        </div>
+        <button class="submit-btn" style="margin-top:15px" onclick="sendReset()">
+            <span>⚔ SEND BATTLE-ORDER</span>
+        </button>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+    <div class="toast-title" id="toastTitle">⚔ KOMBAT TRAVEL</div>
+    <div class="toast-msg" id="toastMsg"></div>
+</div>
+
+<!-- CITY MODAL -->
+<div class="city-modal-overlay" id="cityModalOverlay" onclick="closeCityModal(event)">
+    <div class="city-modal" id="cityModal">
+        <button class="city-modal-close" onclick="closeCityModalBtn()">✕</button>
+        <img class="city-modal-img" id="cityModalImg" src="" alt="">
+        <div class="city-modal-content">
+            <div class="city-modal-tag" id="cityModalTag"></div>
+            <h2 class="city-modal-title" id="cityModalTitle"></h2>
+            <p class="city-modal-desc" id="cityModalDesc"></p>
+            <div class="city-modal-highlights" id="cityModalHighlights"></div>
+            <div class="city-modal-actions">
+                <button class="btn-primary" onclick="bookCity()"><span>⚔ Book This Realm</span></button>
+                <button class="btn-secondary" onclick="closeCityModalBtn()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================
+     PAGE 1: LOGIN
+================================================ -->
+<div id="loginPage" class="page active" style="display:flex; min-height:100vh;">
+
+    <!-- LEFT VISUAL -->
+    <div class="login-visual">
+        <div class="login-visual-bg" id="visualBg"></div>
+        <div class="login-visual-overlay"></div>
+        <div class="login-visual-right-fade"></div>
+        <div class="login-visual-content">
+            <svg class="visual-logo-dragon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="dg2" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#ffd700"/>
+                        <stop offset="50%" stop-color="#ff6b00"/>
+                        <stop offset="100%" stop-color="#cc0000"/>
+                    </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="50" rx="38" ry="38" fill="none" stroke="url(#dg2)" stroke-width="1.5" opacity="0.4"/>
+                <path d="M50 15 L55 30 L70 25 L60 38 L75 40 L60 48 L70 60 L55 55 L55 70 L50 60 L45 70 L45 55 L30 60 L40 48 L25 40 L40 38 L30 25 L45 30 Z" fill="url(#dg2)" opacity="0.95"/>
+                <circle cx="50" cy="50" r="7" fill="#000" stroke="url(#dg2)" stroke-width="1.5"/>
+                <circle cx="50" cy="50" r="3" fill="url(#dg2)"/>
+            </svg>
+            <div class="visual-brand">KOMBAT<br>TRAVEL</div>
+            <div class="visual-tagline">Choose Your Realm — Conquer The World</div>
+            <div class="visual-divider">
+                <div class="vd-line"></div>
+                <div class="vd-gem"></div>
+                <div class="vd-line r"></div>
+            </div>
+            <div class="visual-features">
+                <div class="visual-feature">
+                    <span class="vf-icon">🏔️</span>
+                    <div>
+                        <div class="vf-text-title">150+ Realms</div>
+                        <div class="vf-text-sub">From Ladakh to Maldives & beyond</div>
+                    </div>
+                </div>
+                <div class="visual-feature">
+                    <span class="vf-icon">⚔️</span>
+                    <div>
+                        <div class="vf-text-title">Battle-Ready Deals</div>
+                        <div class="vf-text-sub">Exclusive prices for guild members</div>
+                    </div>
+                </div>
+                <div class="visual-feature">
+                    <span class="vf-icon">🛡️</span>
+                    <div>
+                        <div class="vf-text-title">Full Protection</div>
+                        <div class="vf-text-sub">24/7 warrior support & insurance</div>
+                    </div>
+                </div>
+                <div class="visual-feature">
+                    <span class="vf-icon">🔥</span>
+                    <div>
+                        <div class="vf-text-title">Legendary Experiences</div>
+                        <div class="vf-text-sub">Sacred sites & hidden realms</div>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-destinations" style="margin-top:30px; overflow:hidden; width:100%;">
+                <div class="dest-track" id="destTrack"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="login-form-panel">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <div class="form-box">
+            <div class="form-tabs">
+                <button class="form-tab active" onclick="switchFormTab('login',this)">⚔ Login</button>
+                <button class="form-tab" onclick="switchFormTab('register',this)">🛡 Register</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="form-content active" id="loginForm">
+                <div class="form-greeting">⚔ Welcome Back, Warrior</div>
+                <div class="form-title">Enter<br>Your Realm</div>
+                <div class="form-subtitle">Login to access your legendary journeys</div>
+
+                <div class="input-group" id="lg-email-g">
+                    <label class="input-label">Email Address</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" class="form-input" id="lg-email" placeholder="warrior@realm.com" oninput="validateField('lg-email-g','lg-email','email')">
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Enter a valid email address</div>
+                </div>
+
+                <div class="input-group" id="lg-pass-g">
+                    <label class="input-label">Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" class="form-input" id="lg-pass" placeholder="••••••••" oninput="validateField('lg-pass-g','lg-pass','minlen6')">
+                        <button class="eye-toggle" type="button" onclick="toggleEye('lg-pass',this)">👁</button>
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Minimum 6 characters required</div>
+                </div>
+
+                <div class="form-extras">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="custom-check" id="rememberCheck" onclick="toggleCheck('rememberCheck')">
+                            <span class="check-icon">✓</span>
+                        </div>
+                        <span class="check-label" onclick="toggleCheck('rememberCheck')" style="margin-bottom:0;">Remember me</span>
+                    </div>
+                    <span class="forgot-link" onclick="openForgotModal()">Forgot Password?</span>
+                </div>
+
+                <button class="submit-btn" id="loginBtn" onclick="handleLogin()">
+                    <span>⚔ ENTER REALM</span>
+                </button>
+
+                <div class="or-divider">
+                    <div class="or-line"></div>
+                    <span class="or-text">OR ENTER VIA</span>
+                    <div class="or-line"></div>
+                </div>
+
+                <div class="social-logins">
+                    <button class="social-login-btn" onclick="socialLogin('Google')">🌐 Google</button>
+                    <button class="social-login-btn" onclick="socialLogin('Facebook')">📘 Facebook</button>
+                    <button class="social-login-btn" onclick="socialLogin('Apple')">🍎 Apple</button>
+                </div>
+
+                <div class="switch-text">
+                    New to the guild? &nbsp;
+                    <span class="switch-link" onclick="switchFormTab('register',null)">Join Now →</span>
+                </div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div class="form-content" id="registerForm">
+                <div class="form-greeting">🛡 New Warrior</div>
+                <div class="form-title">Join The<br>Guild</div>
+                <div class="form-subtitle">Create your account and begin the journey</div>
+
+                <div class="input-row">
+                    <div class="input-group" id="rg-fn-g">
+                        <label class="input-label">First Name</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">👤</span>
+                            <input type="text" class="form-input" id="rg-fn" placeholder="Arjun" oninput="validateField('rg-fn-g','rg-fn','minlen2')">
+                            <div class="input-focus-line"></div>
+                        </div>
+                        <div class="input-error-msg">Min 2 characters</div>
+                    </div>
+                    <div class="input-group" id="rg-ln-g">
+                        <label class="input-label">Last Name</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">👤</span>
+                            <input type="text" class="form-input" id="rg-ln" placeholder="Sharma" oninput="validateField('rg-ln-g','rg-ln','minlen2')">
+                            <div class="input-focus-line"></div>
+                        </div>
+                        <div class="input-error-msg">Min 2 characters</div>
+                    </div>
+                </div>
+
+                <div class="input-group" id="rg-email-g">
+                    <label class="input-label">Email Address</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" class="form-input" id="rg-email" placeholder="warrior@realm.com" oninput="validateField('rg-email-g','rg-email','email')">
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Enter a valid email address</div>
+                </div>
+
+                <div class="input-group" id="rg-phone-g">
+                    <label class="input-label">Phone Number</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📱</span>
+                        <input type="tel" class="form-input" id="rg-phone" placeholder="+91 98765 43210" oninput="validateField('rg-phone-g','rg-phone','phone')">
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Enter a valid phone number</div>
+                </div>
+
+                <div class="input-group" id="rg-pass-g">
+                    <label class="input-label">Create Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" class="form-input" id="rg-pass" placeholder="••••••••" oninput="checkStrength();validateField('rg-pass-g','rg-pass','minlen6')">
+                        <button class="eye-toggle" type="button" onclick="toggleEye('rg-pass',this)">👁</button>
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Min 6 characters required</div>
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="sb1"></div>
+                        <div class="strength-bar" id="sb2"></div>
+                        <div class="strength-bar" id="sb3"></div>
+                        <div class="strength-bar" id="sb4"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">Enter password to see strength</div>
+                </div>
+
+                <div class="input-group" id="rg-confirm-g">
+                    <label class="input-label">Confirm Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔐</span>
+                        <input type="password" class="form-input" id="rg-confirm" placeholder="••••••••" oninput="validateConfirm()">
+                        <button class="eye-toggle" type="button" onclick="toggleEye('rg-confirm',this)">👁</button>
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="input-error-msg">Passwords do not match</div>
+                </div>
+
+                <div class="check-group">
+                    <div class="custom-check" id="termsCheck" onclick="toggleCheck('termsCheck')">
+                        <span class="check-icon">✓</span>
+                    </div>
+                    <span class="check-label" onclick="toggleCheck('termsCheck')">
+                        I accept the <a href="#">Terms of Battle</a> & <a href="#">Privacy Scroll</a>
+                    </span>
+                </div>
+
+                <button class="submit-btn" id="registerBtn" onclick="handleRegister()">
+                    <span>🛡 JOIN THE GUILD</span>
+                </button>
+
+                <div class="or-divider">
+                    <div class="or-line"></div>
+                    <span class="or-text">OR JOIN VIA</span>
+                    <div class="or-line"></div>
+                </div>
+
+                <div class="social-logins">
+                    <button class="social-login-btn" onclick="socialLogin('Google')">🌐 Google</button>
+                    <button class="social-login-btn" onclick="socialLogin('Facebook')">📘 Facebook</button>
+                    <button class="social-login-btn" onclick="socialLogin('Apple')">🍎 Apple</button>
+                </div>
+
+                <div class="switch-text">
+                    Already a warrior? &nbsp;
+                    <span class="switch-link" onclick="switchFormTab('login',null)">Login →</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================
+     PAGE 2: MAIN SITE
+================================================ -->
+<div id="mainPage" class="page">
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="nav-inner">
+            <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+                ☬ KOMBAT TRAVEL
+                <span>CHOOSE YOUR REALM</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#india">India</a></li>
+                <li><a href="#world">World</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#newsletter">Book Now</a></li>
+            </ul>
+            <div class="nav-user">
+                <span class="nav-user-name" id="navUserName">⚔ WARRIOR</span>
+                <div class="nav-avatar" title="Profile">⚔</div>
+                <button class="nav-logout" onclick="handleLogout()">LOGOUT</button>
+            </div>
+            <div class="hamburger" onclick="toggleMobileMenu()">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#india" onclick="toggleMobileMenu()">India Realms</a>
+        <a href="#world" onclick="toggleMobileMenu()">World Realms</a>
+        <a href="#experience" onclick="toggleMobileMenu()">Experience</a>
+        <a href="#testimonials" onclick="toggleMobileMenu()">Reviews</a>
+        <a href="#newsletter" onclick="toggleMobileMenu()">Book Now</a>
+        <a href="#" onclick="handleLogout();return false;" style="color:#ff6b00;">Logout</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-image-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="mk-logo-hero">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#ffd700"/>
+                            <stop offset="50%" stop-color="#ff6b00"/>
+                            <stop offset="100%" stop-color="#cc0000"/>
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="50" cy="50" rx="35" ry="35" fill="none" stroke="url(#hg)" stroke-width="2" opacity="0.5"/>
+                    <path d="M50 15 L55 30 L70 25 L60 38 L75 40 L60 48 L70 60 L55 55 L55 70 L50 60 L45 70 L45 55 L30 60 L40 48 L25 40 L40 38 L30 25 L45 30 Z" fill="url(#hg)" opacity="0.9"/>
+                    <circle cx="50" cy="50" r="8" fill="#000" stroke="url(#hg)" stroke-width="1.5"/>
+                    <circle cx="50" cy="50" r="3" fill="url(#hg)"/>
+                    <path d="M50 5 L52 12 L50 10 L48 12 Z" fill="#ffd700"/>
+                    <path d="M95 50 L88 52 L90 50 L88 48 Z" fill="#ffd700"/>
+                    <path d="M50 95 L52 88 L50 90 L48 88 Z" fill="#ffd700"/>
+                    <path d="M5 50 L12 52 L10 50 L12 48 Z" fill="#ffd700"/>
+                </svg>
+            </div>
+            <p class="hero-eyebrow">⚔ Welcome to The Ultimate Travel Experience ⚔</p>
+            <div class="hero-welcome" id="heroWelcome"></div>
+            <h1 class="hero-title">
+                <span class="line1">KOMBAT</span>
+                <span class="line2">TRAVEL</span>
+            </h1>
+            <p class="hero-subtitle">Explore <span>Ancient Realms</span> & <span>Modern Kingdoms</span></p>
+            <div class="hero-buttons">
+                <a href="#india" class="btn-primary"><span>⚔ Explore India</span></a>
+                <a href="#world" class="btn-secondary">🌍 World Realms</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-banner">
+        <div class="stats-grid">
+            <div class="stat-item reveal"><div class="stat-big-value" id="c1">0+</div><div class="stat-big-label">Destinations</div></div>
+            <div class="stat-item reveal"><div class="stat-big-value" id="c2">0K+</div><div class="stat-big-label">Travelers</div></div>
+            <div class="stat-item reveal"><div class="stat-big-value" id="c3">0+</div><div class="stat-big-label">Countries</div></div>
+            <div class="stat-item reveal"><div class="stat-big-value" id="c4">0K+</div><div class="stat-big-label">Reviews</div></div>
+        </div>
+    </div>
+
+    <!-- INDIA CITIES -->
+    <section id="india" class="realms-section">
+        <div class="section-header">
+            <span class="section-tag">⚔ The Sacred Realm ⚔</span>
+            <h2 class="section-title">INDIA'S KINGDOMS</h2>
+            <div class="section-divider">
+                <div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line right"></div>
+            </div>
+            <p class="section-desc">Ancient civilizations, timeless monuments, and spiritual battlegrounds await the worthy traveler</p>
+        </div>
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="SEARCH YOUR REALM..." id="searchIndia" oninput="filterCities()">
+            <button class="search-btn">SEARCH</button>
+        </div>
+        <div class="cities-grid tab-content active" id="india-grid">
+            <div class="city-card featured" onclick="openCityModal('mumbai')">
+                <div class="sector-label">FEATURED REALM</div>
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=1200&q=85&auto=format&fit=crop" alt="Mumbai" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Maharashtra, India</div>
+                    <div class="city-name">Mumbai</div>
+                    <div class="city-tagline">The City of Dreams — where ambitions burn brighter than fire</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">20M+</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹8,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('delhi')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&q=85&auto=format&fit=crop" alt="Delhi" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Delhi, India</div>
+                    <div class="city-name">New Delhi</div>
+                    <div class="city-tagline">Seat of power — the eternal capital of empires</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">30M+</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.6</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹6,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('agra')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&q=85&auto=format&fit=crop" alt="Agra" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Uttar Pradesh, India</div>
+                    <div class="city-name">Agra</div>
+                    <div class="city-tagline">Where love conquered death — the immortal monument</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">2M+</span><span class="stat-label">Visitors/yr</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹5,499</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card varanasi-card" onclick="openCityModal('varanasi')">
+                <div class="highlight-badge badge-saffron">🔥 SPIRITUAL</div>
+                <img class="city-card-img" id="varanasi-img" src="https://images.unsplash.com/photo-1561361058-c24e01de1e5b?w=800&q=85&auto=format&fit=crop" alt="Varanasi" loading="lazy" onerror="handleImgError('varanasi-img',varanasiFB,'varanasi-fb')">
+                <div class="img-fallback varanasi-fallback" id="varanasi-fb" style="display:none;"><div class="img-fallback-icon">🪔</div><div class="img-fallback-text">VARANASI GHAT</div></div>
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Uttar Pradesh, India</div>
+                    <div class="city-name">Varanasi</div>
+                    <div class="city-tagline">The spiritual battleground — where souls seek liberation</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">3000+</span><span class="stat-label">Years Old</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹4,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('jaipur')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=85&auto=format&fit=crop" alt="Jaipur" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Rajasthan, India</div>
+                    <div class="city-name">Jaipur</div>
+                    <div class="city-tagline">The Pink City — royal fortresses of ancient warriors</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">3.1M</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹5,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('kerala')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=85&auto=format&fit=crop" alt="Kerala" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Kerala, India</div>
+                    <div class="city-name">Kerala</div>
+                    <div class="city-tagline">God's own country — the emerald kingdom of serenity</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">44</span><span class="stat-label">Rivers</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹7,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('goa')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=85&auto=format&fit=crop" alt="Goa" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Goa, India</div>
+                    <div class="city-name">Goa</div>
+                    <div class="city-tagline">Where warriors rest — the golden shores of liberation</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">101</span><span class="stat-label">Beaches</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹9,499</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card ladakh-card" onclick="openCityModal('ladakh')">
+                <div class="highlight-badge badge-blue">❄ HIMALAYAN</div>
+                <img class="city-card-img" id="ladakh-img" src="https://images.unsplash.com/photo-1609766418204-94aae0ecfdfc?w=800&q=85&auto=format&fit=crop" alt="Ladakh" loading="lazy" onerror="handleImgError('ladakh-img',ladakhFB,'ladakh-fb')">
+                <div class="img-fallback ladakh-fallback" id="ladakh-fb" style="display:none;"><div class="img-fallback-icon">🏔️</div><div class="img-fallback-text">PANGONG LAKE</div></div>
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Ladakh, India</div>
+                    <div class="city-name">Ladakh</div>
+                    <div class="city-tagline">The rooftop realm — where earth meets the heavens</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">3500m</span><span class="stat-label">Altitude</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹12,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card mysore-card" onclick="openCityModal('mysore')">
+                <div class="highlight-badge badge-purple">👑 ROYAL</div>
+                <img class="city-card-img" id="mysore-img" src="https://images.unsplash.com/photo-1592549585866-486f4b788b3a?w=800&q=85&auto=format&fit=crop" alt="Mysore Palace" loading="lazy" onerror="handleImgError('mysore-img',mysoreFB,'mysore-fb')">
+                <div class="img-fallback mysore-fallback" id="mysore-fb" style="display:none;"><div class="img-fallback-icon">🏯</div><div class="img-fallback-text">MYSORE PALACE</div></div>
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Karnataka, India</div>
+                    <div class="city-name">Mysore</div>
+                    <div class="city-tagline">Palace of legends — 97,000 lights crown the royal fortress</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">1M+</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹5,499</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('bangalore')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&q=85&auto=format&fit=crop" alt="Bangalore" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Karnataka, India</div>
+                    <div class="city-name">Bangalore</div>
+                    <div class="city-tagline">The silicon battleground — where the future is forged</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">12M+</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.5</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹7,499</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card amritsar-card" onclick="openCityModal('amritsar')">
+                <div class="highlight-badge badge-gold">✨ SACRED</div>
+                <img class="city-card-img" id="amritsar-img" src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?w=800&q=85&auto=format&fit=crop" alt="Golden Temple" loading="lazy" onerror="handleImgError('amritsar-img',amritsarFB,'amritsar-fb')">
+                <div class="img-fallback amritsar-fallback" id="amritsar-fb" style="display:none;"><div class="img-fallback-icon">⛩️</div><div class="img-fallback-text">GOLDEN TEMPLE</div></div>
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">Punjab, India</div>
+                    <div class="city-name">Amritsar</div>
+                    <div class="city-tagline">The golden fortress — sanctuary of the warrior spirit</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">100K+</span><span class="stat-label">Daily Visitors</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹4,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+            <div class="city-card" onclick="openCityModal('kolkata')">
+                <img class="city-card-img" src="https://images.unsplash.com/photo-1558431382-27e303142255?w=800&q=85&auto=format&fit=crop" alt="Kolkata" loading="lazy">
+                <div class="city-card-overlay"></div>
+                <div class="city-card-content">
+                    <div class="city-country-tag">West Bengal, India</div>
+                    <div class="city-name">Kolkata</div>
+                    <div class="city-tagline">City of joy — where culture and chaos forge greatness</div>
+                    <div class="city-stats">
+                        <div class="city-stat"><span class="stat-value">14M+</span><span class="stat-label">Population</span></div>
+                        <div class="city-stat"><span class="stat-value">★ 4.5</span><span class="stat-label">Rating</span></div>
+                        <div class="city-stat"><span class="stat-value">₹5,999</span><span class="stat-label">From</span></div>
+                    </div>
+                    <button class="city-btn">⚔ Enter Realm</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="experience-section">
+        <div class="section-header">
+            <span class="section-tag">⚔ The Combat Skills ⚔</span>
+            <h2 class="section-title">YOUR ARSENAL</h2>
+            <div class="section-divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line right"></div></div>
+        </div>
+        <div class="experience-grid">
+            <div class="exp-card reveal"><div class="exp-icon">⚔️</div><div class="exp-title">Battle-Ready Deals</div><div class="exp-desc">Our warriors hunt the best prices across all realms. Unbeatable offers forged in the fires of negotiation.</div></div>
+            <div class="exp-card reveal"><div class="exp-icon">🛡️</div><div class="exp-title">Protected Journeys</div><div class="exp-desc">Full travel insurance and 24/7 support guards your quest across all known and unknown territories.</div></div>
+            <div class="exp-card reveal"><div class="exp-icon">🏯</div><div class="exp-title">Elite Accommodations</div><div class="exp-desc">Rest in the finest palaces and fortresses. Only the most worthy lodgings for our travelers.</div></div>
+            <div class="exp-card reveal"><div class="exp-icon">⚡</div><div class="exp-title">Instant Booking</div><div class="exp-desc">Strike fast like lightning. Instant confirmation, zero waiting. Your adventure begins now.</div></div>
+            <div class="exp-card reveal"><div class="exp-icon">🗺️</div><div class="exp-title">Expert Guides</div><div class="exp-desc">Battle-hardened guides who know every secret passage, hidden realm, and sacred site.</div></div>
+            <div class="exp-card reveal"><div class="exp-icon">🔥</div><div class="exp-title">Exclusive Experiences</div><div class="exp-desc">Access to ancient rituals, private tours, and legendary experiences unavailable to ordinary travelers.</div></div>
+        </div>
+    </section>
+
+    <!-- WORLD CITIES -->
+    <section id="world" class="featured-section">
+        <div class="section-header">
+            <span class="section-tag">🌍 Outer Realms 🌍</span>
+            <h2 class="section-title">WORLD KINGDOMS</h2>
+            <div class="section-divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line right"></div></div>
+            <p class="section-desc">Conquer distant realms across continents — from ancient kingdoms to futuristic empires</p>
+        </div>
+        <div class="realms-tabs">
+            <button class="realm-tab active" onclick="switchWorldTab('asia',this)">⚔ Asia</button>
+            <button class="realm-tab" onclick="switchWorldTab('europe',this)">🏰 Europe</button>
+            <button class="realm-tab" onclick="switchWorldTab('americas',this)">🗺 Americas</button>
+            <button class="realm-tab" onclick="switchWorldTab('africa',this)">🌋 Africa</button>
+            <button class="realm-tab" onclick="switchWorldTab('oceania',this)">🌊 Oceania</button>
+        </div>
+
+        <!-- ASIA -->
+        <div class="cities-grid tab-content active" id="asia-grid">
+            <div class="city-card featured" onclick="openCityModal('tokyo')"><div class="sector-label">TOP REALM</div><img class="city-card-img" src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&q=85&auto=format&fit=crop" alt="Tokyo" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Japan</div><div class="city-name">Tokyo</div><div class="city-tagline">The neon empire — ancient tradition meets digital warfare</div><div class="city-stats"><div class="city-stat"><span class="stat-value">14M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,899</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('dubai')"><img class="city-card-img" src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=85" alt="Dubai" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">UAE</div><div class="city-name">Dubai</div><div class="city-tagline">Desert fortress of gold — ambition defies gravity</div><div class="city-stats"><div class="city-stat"><span class="stat-value">828m</span><span class="stat-label">Burj Khalifa</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,299</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('bangkok')"><img class="city-card-img" src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&q=85" alt="Bangkok" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Thailand</div><div class="city-name">Bangkok</div><div class="city-tagline">Temple of warriors — golden spires pierce the sky</div><div class="city-stats"><div class="city-stat"><span class="stat-value">10M+</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$799</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('bali')"><img class="city-card-img" src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=85" alt="Bali" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Indonesia</div><div class="city-name">Bali</div><div class="city-tagline">Island of the gods — sacred volcanic realm of peace</div><div class="city-stats"><div class="city-stat"><span class="stat-value">4.3M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$899</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('singapore')"><img class="city-card-img" src="https://images.unsplash.com/photo-1565967511849-76a60a516170?w=800&q=85" alt="Singapore" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Singapore</div><div class="city-name">Singapore</div><div class="city-tagline">The lion city — precision forged into a gleaming fortress</div><div class="city-stats"><div class="city-stat"><span class="stat-value">5.9M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,099</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+        </div>
+
+        <!-- EUROPE -->
+        <div class="cities-grid tab-content" id="europe-grid">
+            <div class="city-card featured" onclick="openCityModal('paris')"><div class="sector-label">ICONIC REALM</div><img class="city-card-img" src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=85" alt="Paris" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">France</div><div class="city-name">Paris</div><div class="city-tagline">The city of eternal light — beauty conquered the world</div><div class="city-stats"><div class="city-stat"><span class="stat-value">2.1M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,599</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('rome')"><img class="city-card-img" src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=85" alt="Rome" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Italy</div><div class="city-name">Rome</div><div class="city-tagline">The eternal arena — gladiators built this empire</div><div class="city-stats"><div class="city-stat"><span class="stat-value">2.8M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,399</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('london')"><img class="city-card-img" src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=85" alt="London" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">United Kingdom</div><div class="city-name">London</div><div class="city-tagline">Crown of the west — where empires were born</div><div class="city-stats"><div class="city-stat"><span class="stat-value">9M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,699</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('santorini')"><img class="city-card-img" src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=85" alt="Santorini" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Greece</div><div class="city-name">Santorini</div><div class="city-tagline">Olympus descends to earth — where gods vacation</div><div class="city-stats"><div class="city-stat"><span class="stat-value">15K</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,499</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+        </div>
+
+        <!-- AMERICAS -->
+        <div class="cities-grid tab-content" id="americas-grid">
+            <div class="city-card featured" onclick="openCityModal('newyork')"><div class="sector-label">POWER REALM</div><img class="city-card-img" src="https://images.unsplash.com/photo-1546436836-07a91091f160?w=1200&q=85" alt="New York" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">USA</div><div class="city-name">New York</div><div class="city-tagline">The concrete jungle — champions forged in steel</div><div class="city-stats"><div class="city-stat"><span class="stat-value">8.3M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,799</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('rio')"><img class="city-card-img" src="https://images.unsplash.com/photo-1544989164-31807e73b668?w=800&q=85" alt="Rio" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Brazil</div><div class="city-name">Rio de Janeiro</div><div class="city-tagline">The carnival kingdom — passion carved into mountains</div><div class="city-stats"><div class="city-stat"><span class="stat-value">6.7M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,299</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('machu')"><img class="city-card-img" src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=85" alt="Machu Picchu" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Peru</div><div class="city-name">Machu Picchu</div><div class="city-tagline">Lost empire in the clouds — Inca fortress above the world</div><div class="city-stats"><div class="city-stat"><span class="stat-value">2430m</span><span class="stat-label">Altitude</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,599</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+        </div>
+
+        <!-- AFRICA -->
+        <div class="cities-grid tab-content" id="africa-grid">
+            <div class="city-card featured" onclick="openCityModal('cairo')"><div class="sector-label">ANCIENT REALM</div><img class="city-card-img" src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&q=85" alt="Cairo" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Egypt</div><div class="city-name">Cairo</div><div class="city-tagline">Realm of pharaohs — pyramids that defy time itself</div><div class="city-stats"><div class="city-stat"><span class="stat-value">20M+</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$899</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('capetown')"><img class="city-card-img" src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&q=85" alt="Cape Town" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">South Africa</div><div class="city-name">Cape Town</div><div class="city-tagline">Where two oceans clash — the rainbow nation's jewel</div><div class="city-stats"><div class="city-stat"><span class="stat-value">4.6M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,199</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('marrakech')"><img class="city-card-img" src="https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800&q=85" alt="Marrakech" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Morocco</div><div class="city-name">Marrakech</div><div class="city-tagline">Red city of spice — the Saharan gateway</div><div class="city-stats"><div class="city-stat"><span class="stat-value">1M+</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.7</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$799</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+        </div>
+
+        <!-- OCEANIA -->
+        <div class="cities-grid tab-content" id="oceania-grid">
+            <div class="city-card featured" onclick="openCityModal('sydney')"><div class="sector-label">SOUTHERN REALM</div><img class="city-card-img" src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&q=85" alt="Sydney" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Australia</div><div class="city-name">Sydney</div><div class="city-tagline">The harbour kingdom — continent meets the infinite sea</div><div class="city-stats"><div class="city-stat"><span class="stat-value">5.3M</span><span class="stat-label">Population</span></div><div class="city-stat"><span class="stat-value">★ 4.8</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$1,899</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+            <div class="city-card" onclick="openCityModal('maldives')"><img class="city-card-img" src="https://images.unsplash.com/photo-1540202404-a2f29916b6ab?w=800&q=85" alt="Maldives" loading="lazy"><div class="city-card-overlay"></div><div class="city-card-content"><div class="city-country-tag">Maldives</div><div class="city-name">Maldives</div><div class="city-tagline">The water kingdom — floating palaces in crystal seas</div><div class="city-stats"><div class="city-stat"><span class="stat-value">1192</span><span class="stat-label">Islands</span></div><div class="city-stat"><span class="stat-value">★ 4.9</span><span class="stat-label">Rating</span></div><div class="city-stat"><span class="stat-value">$2,499</span><span class="stat-label">From</span></div></div><button class="city-btn">⚔ Enter Realm</button></div></div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="section-header">
+            <span class="section-tag">⚔ Chronicles of Warriors ⚔</span>
+            <h2 class="section-title">BATTLE REPORTS</h2>
+            <div class="section-divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line right"></div></div>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Ladakh was beyond this world — the blue Pangong Lake against snow-capped Himalayas. Kombat Travel arranged everything perfectly. A true warrior's journey above the clouds!"</p>
+                <div class="testimonial-author">
+                    <img class="author-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Arjun">
+                    <div><div class="author-name">ARJUN SHARMA</div><div class="author-location">Mumbai, India</div></div>
+                </div>
+            </div>
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Varanasi Ganga Aarti at dawn was the most moving experience of my life. Fire, chanting, the sacred river — a true spiritual battle for the soul. FLAWLESS VICTORY!"</p>
+                <div class="testimonial-author">
+                    <img class="author-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Priya">
+                    <div><div class="author-name">PRIYA KAPOOR</div><div class="author-location">Delhi, India</div></div>
+                </div>
+            </div>
+            <div class="testimonial-card reveal">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Mysore Palace lit by 97,000 lights during Dasara was like entering a royal kingdom. Amritsar's Golden Temple at night was pure divine magic!"</p>
+                <div class="testimonial-author">
+                    <img class="author-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Marcus">
+                    <div><div class="author-name">MARCUS JOHNSON</div><div class="author-location">London, UK</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section id="newsletter" class="newsletter-section">
+        <span class="section-tag">⚔ Join The Warrior Guild ⚔</span>
+        <h2 class="newsletter-title">ENTER YOUR REALM</h2>
+        <p class="newsletter-desc">Get exclusive deals, secret destinations, and battle-tested travel tips</p>
+        <div class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="YOUR.EMAIL@REALM.COM" id="newsletterEmail">
+            <button class="newsletter-btn" onclick="subscribeNewsletter()">JOIN NOW</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo">☬ KOMBAT TRAVEL</div>
+                    <p class="footer-desc">Forged in the fires of wanderlust, Kombat Travel delivers legendary experiences to warriors seeking the ultimate journey. Choose your realm. Conquer the world.</p>
+                    <div class="footer-social">
+                        <a class="social-btn" href="#">📷</a>
+                        <a class="social-btn" href="#">𝕏</a>
+                        <a class="social-btn" href="#">f</a>
+                        <a class="social-btn" href="#">▶</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-col-title">India Realms</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Mumbai</a></li><li><a href="#">Delhi</a></li><li><a href="#">Jaipur</a></li>
+                        <li><a href="#">Varanasi</a></li><li><a href="#">Ladakh</a></li><li><a href="#">Mysore</a></li><li><a href="#">Amritsar</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">World Realms</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Tokyo</a></li><li><a href="#">Paris</a></li><li><a href="#">Dubai</a></li>
+                        <li><a href="#">New York</a></li><li><a href="#">Bali</a></li><li><a href="#">Sydney</a></li><li><a href="#">Cairo</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">The Guild</div>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li><li><a href="#">Careers</a></li><li><a href="#">Travel Guides</a></li>
+                        <li><a href="#">Privacy Policy</a></li><li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copy">© 2024 <span>KOMBAT TRAVEL</span>. All Realms Reserved. Forged with 🔥</div>
+                <div class="footer-copy">Designed by <span>The War Council</span></div>
+            </div>
+        </div>
+    </footer>
+
+</div><!-- end mainPage -->
+
+<script>
+// ============================
+// STATE
+// ============================
+let currentUser = null;
+let fbIndex = {};
+
+// Image fallbacks
+const ladakhFB   = ['https://images.unsplash.com/photo-1577720643272-265f09367456?w=800&q=85','https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Pangong_tso.jpg/1280px-Pangong_tso.jpg'];
+const varanasiFB = ['https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Varanasi_Ghats.jpg/1280px-Varanasi_Ghats.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sunset_at_Ganga.jpg/1280px-Sunset_at_Ganga.jpg'];
+const mysoreFB   = ['https://images.unsplash.com/photo-1580745294621-544f17e87a1f?w=800&q=85','https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Mysore_Palace_Morning.jpg/1280px-Mysore_Palace_Morning.jpg'];
+const amritsarFB = ['https://images.unsplash.com/photo-1609340080611-40ecf0a6efee?w=800&q=85','https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Golden_Temple%2C_Amritsar_3.jpg/1280px-Golden_Temple%2C_Amritsar_3.jpg'];
+
+function handleImgError(imgId, fbArr, fbDivId) {
+    if (!fbIndex[imgId]) fbIndex[imgId] = 0;
+    if (fbIndex[imgId] < fbArr.length) {
+        document.getElementById(imgId).src = fbArr[fbIndex[imgId]++];
+    } else {
+        document.getElementById(imgId).style.display = 'none';
+        document.getElementById(fbDivId).style.display = 'flex';
+    }
+}
+
+// ============================
+// PARTICLES
+// ============================
+const pc = document.getElementById('particles-container');
+const pColors = ['#ff6b00','#cc0000','#ffd700','#ff4500','#ff8c00'];
+
+function makeParticle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random()*6+2;
+    p.style.cssText = `left:${Math.random()*100}vw;width:${s}px;height:${s}px;background:${pColors[Math.floor(Math.random()*pColors.length)]};animation-duration:${Math.random()*4+3}s;animation-delay:${Math.random()*2}s;box-shadow:0 0 ${Math.random()*10+5}px currentColor;`;
+    pc.appendChild(p);
+    setTimeout(() => p.remove(), 7000);
+}
+setInterval(makeParticle, 150);
+
+// ============================
+// INTRO
+// ============================
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const intro = document.getElementById('introScreen');
+        intro.classList.add('fade-out');
+        setTimeout(() => {
+            intro.style.display = 'none';
+            document.getElementById('visualBg').classList.add('zoomed');
+        }, 900);
+    }, 2200);
+});
+
+// ============================
+// DESTINATION PILLS
+// ============================
+const dests = ['Mumbai','Delhi','Jaipur','Varanasi','Ladakh','Goa','Kerala','Mysore','Amritsar','Kolkata','Tokyo','Dubai','Paris','Rome','London','Bali','Singapore','New York','Sydney','Cairo','Barcelona','Santorini','Bangkok','Maldives','Marrakech'];
+const track = document.getElementById('destTrack');
+[...dests,...dests].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dest-pill';
+    el.textContent = d;
+    track.appendChild(el);
+});
+
+// ============================
+// FORM TAB
+// ============================
+function switchFormTab(tab, btn) {
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-content').forEach(c => c.classList.remove('active'));
+    if (btn) {
+        btn.classList.add('active');
+    } else {
+        document.querySelectorAll('.form-tab').forEach(t => {
+            if ((tab==='login' && t.textContent.includes('Login')) || (tab==='register' && t.textContent.includes('Register')))
+                t.classList.add('active');
+        });
+    }
+    document.getElementById(tab+'Form').classList.add('active');
+}
+
+// ============================
+// EYE TOGGLE
+// ============================
+function toggleEye(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+// ============================
+// CHECKBOX
+// ============================
+function toggleCheck(id) { document.getElementById(id).classList.toggle('checked'); }
+
+// ============================
+// VALIDATION
+// ============================
+function validateField(groupId, inputId, rule) {
+    const g = document.getElementById(groupId);
+    const v = document.getElementById(inputId).value.trim();
+    if (!v) { g.classList.remove('valid','error'); return false; }
+    let ok = false;
+    if (rule === 'email') ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    else if (rule === 'minlen2') ok = v.length >= 2;
+    else if (rule === 'minlen6') ok = v.length >= 6;
+    else if (rule === 'phone') ok = /^\+?[\d\s\-]{8,15}$/.test(v);
+    g.classList.remove('valid','error');
+    g.classList.add(ok ? 'valid' : 'error');
+    return ok;
+}
+
+function validateConfirm() {
+    const g = document.getElementById('rg-confirm-g');
+    const p = document.getElementById('rg-pass').value;
+    const c = document.getElementById('rg-confirm').value;
+    g.classList.remove('valid','error');
+    if (!c) return false;
+    const ok = p === c && c.length >= 6;
+    g.classList.add(ok ? 'valid' : 'error');
+    return ok;
+}
+
+// ============================
+// PASSWORD STRENGTH
+// ============================
+function checkStrength() {
+    const v = document.getElementById('rg-pass').value;
+    ['sb1','sb2','sb3','sb4'].forEach(id => document.getElementById(id).className = 'strength-bar');
+    if (!v) { document.getElementById('strengthText').textContent = 'Enter password to see strength'; return; }
+    let s = 0;
+    if (v.length >= 6) s++;
+    if (v.length >= 10) s++;
+    if (/[A-Z]/.test(v) && /[0-9]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const labels = ['','WEAK ⚠','MEDIUM ⚡','STRONG 🔥','LEGENDARY ⚔'];
+    const cls = ['','weak','medium','strong','strong'];
+    document.getElementById('strengthText').textContent = labels[s] || '';
+    for (let i=0;i<s;i++) document.getElementById(['sb1','sb2','sb3','sb4'][i]).classList.add(cls[s]);
+}
+
+// ============================
+// TOAST
+// ============================
+let toastTimer;
+function showToast(title, msg, type='') {
+    const t = document.getElementById('toast');
+    t.className = 'toast' + (type ? ' '+type+'-toast' : '');
+    document.getElementById('toastTitle').textContent = title;
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
+}
+
+// ============================
+// FORGOT PASSWORD
+// ============================
+function openForgotModal() { document.getElementById('forgotModal').classList.add('active'); }
+function closeForgotModal() { document.getElementById('forgotModal').classList.remove('active'); }
+document.getElementById('forgotModal').addEventListener('click', e => { if(e.target===document.getElementById('forgotModal')) closeForgotModal(); });
+
+function sendReset() {
+    const email = document.getElementById('forgotEmail').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('⚠ ERROR','Enter a valid email address','error'); return; }
+    closeForgotModal();
+    showToast('✉️ DISPATCHED',`Battle-order sent to ${email}!`,'success');
+}
+
+// ============================
+// FIREWORKS
+// ============================
+function spawnFireworks() {
+    const fw = document.getElementById('fireworksContainer');
+    fw.innerHTML = '';
+    const colors = ['#ff6b00','#ffd700','#cc0000','#ff4500','#fff','#ffaa00'];
+    for (let b=0;b<8;b++) {
+        setTimeout(() => {
+            const cx=15+Math.random()*70, cy=10+Math.random()*60;
+            for (let i=0;i<20;i++) {
+                const f = document.createElement('div');
+                f.className = 'firework';
+                const angle=(i/20)*Math.PI*2, dist=80+Math.random()*120;
+                f.style.cssText=`left:${cx}%;top:${cy}%;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;width:${Math.random()*5+3}px;height:${Math.random()*5+3}px;animation-delay:${Math.random()*0.3}s;box-shadow:0 0 6px currentColor;`;
+                fw.appendChild(f);
+            }
+        }, b*250);
+    }
+}
+
+// ============================
+// SUCCESS → MAIN SITE
+// ============================
+function showSuccess(username, mode) {
+    const titles = { login:'WELCOME BACK, WARRIOR', register:'GUILD ENTRY CONFIRMED', social:'ACCESS GRANTED' };
+    const subs = { login:'YOUR REALM AWAITS', register:'YOU ARE NOW A KOMBAT WARRIOR', social:'REALM UNLOCKED' };
+    const descs = {
+        login:`Credentials verified. Welcome back, ${username}. 150+ realms await your conquest.`,
+        register:`Welcome to the guild, ${username}! Your warrior profile has been forged. Begin your journey.`,
+        social:`Social identity verified for ${username}. The realms of Kombat Travel are yours.`
+    };
+    document.getElementById('successTitle').textContent = titles[mode];
+    document.getElementById('successSub').textContent = subs[mode];
+    document.getElementById('successDesc').textContent = descs[mode];
+    document.getElementById('successOverlay').classList.add('show');
+    spawnFireworks();
+}
+
+function enterMainSite() {
+    document.getElementById('successOverlay').classList.remove('show');
+    // switch pages
+    document.getElementById('loginPage').classList.remove('active');
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('mainPage').classList.add('active');
+    document.getElementById('mainPage').style.display = 'block';
+    window.scrollTo(0,0);
+    // set user name in nav
+    const displayName = currentUser ? currentUser.toUpperCase() : 'WARRIOR';
+    document.getElementById('navUserName').textContent = '⚔ ' + displayName.split(' ')[0];
+    document.getElementById('heroWelcome').textContent = `WELCOME, ${displayName.split(' ')[0]} ⚔`;
+    // start counters & observers
+    initMainSite();
+    showToast('⚔ REALM UNLOCKED', 'Explore 150+ kingdoms across the world!', 'success');
+}
+
+// ============================
+// LOGIN
+// ============================
+function handleLogin() {
+    const emailOk = validateField('lg-email-g','lg-email','email');
+    const passOk  = validateField('lg-pass-g','lg-pass','minlen6');
+    if (!emailOk || !passOk) { showToast('⚠ VALIDATION FAILED','Fix the errors above','error'); return; }
+    const email = document.getElementById('lg-email').value;
+    const btn = document.getElementById('loginBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+    setTimeout(() => {
+        btn.classList.remove('loading'); btn.disabled = false;
+        currentUser = email.split('@')[0];
+        showSuccess(currentUser, 'login');
+    }, 1800);
+}
+
+// ============================
+// REGISTER
+// ============================
+function handleRegister() {
+    const fnOk = validateField('rg-fn-g','rg-fn','minlen2');
+    const lnOk = validateField('rg-ln-g','rg-ln','minlen2');
+    const emailOk = validateField('rg-email-g','rg-email','email');
+    const phoneOk = validateField('rg-phone-g','rg-phone','phone');
+    const passOk  = validateField('rg-pass-g','rg-pass','minlen6');
+    const confirmOk = validateConfirm();
+    const terms = document.getElementById('termsCheck').classList.contains('checked');
+    if (!fnOk||!lnOk||!emailOk||!phoneOk||!passOk||!confirmOk) { showToast('⚠ INCOMPLETE','Fill all fields correctly','error'); return; }
+    if (!terms) { showToast('⚠ TERMS REQUIRED','Accept the Terms of Battle to proceed','error'); return; }
+    const fn = document.getElementById('rg-fn').value;
+    const ln = document.getElementById('rg-ln').value;
+    const btn = document.getElementById('registerBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+    setTimeout(() => {
+        btn.classList.remove('loading'); btn.disabled = false;
+        currentUser = fn + ' ' + ln;
+        showSuccess(currentUser, 'register');
+    }, 2000);
+}
+
+// ============================
+// SOCIAL LOGIN
+// ============================
+function socialLogin(provider) {
+    showToast(`🌐 ${provider.toUpperCase()}`,'Connecting... (demo mode)');
+    setTimeout(() => {
+        currentUser = 'Guild Member';
+        showSuccess(provider + ' User', 'social');
+    }, 1500);
+}
+
+// ============================
+// LOGOUT
+// ============================
+function handleLogout() {
+    currentUser = null;
+    document.getElementById('mainPage').classList.remove('active');
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('loginPage').style.display = 'flex';
+    // reset forms
+    document.getElementById('lg-email').value = '';
+    document.getElementById('lg-pass').value = '';
+    document.getElementById('loginPage').querySelectorAll('.input-group').forEach(g => g.classList.remove('valid','error'));
+    window.scrollTo(0,0);
+    showToast('👋 FAREWELL WARRIOR','You have left the realm. Return anytime!');
+}
+
+// ============================
+// MAIN SITE INIT
+// ============================
+let mainInited = false;
+
+function initMainSite() {
+    if (mainInited) return;
+    mainInited = true;
+
+    // scroll reveal
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible'); revealObs.unobserve(e.target);} });
+    }, {threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // counters
+    const counters = [{id:'c1',v:150,s:'+'},{id:'c2',v:50,s:'K+'},{id:'c3',v:80,s:'+'},{id:'c4',v:25,s:'K+'}];
+    const cntObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if(e.isIntersecting) {
+                const conf = counters.find(c=>c.id===e.target.id);
+                if (!conf) return;
+                let cur=0; const inc=conf.v/60;
+                const tmr = setInterval(()=>{cur+=inc;if(cur>=conf.v){cur=conf.v;clearInterval(tmr);}e.target.textContent=Math.floor(cur)+conf.s;},25);
+                cntObs.unobserve(e.target);
+            }
+        });
+    },{threshold:0.5});
+    counters.forEach(c=>{const el=document.getElementById(c.id);if(el)cntObs.observe(el);});
+
+    // card animations
+    const cardObs = new IntersectionObserver(entries => {
+        entries.forEach((e,i) => {
+            if(e.isIntersecting){
+                e.target.style.opacity='0';e.target.style.transform='translateY(40px)';
+                e.target.style.transition=`opacity 0.6s ease ${i*0.05}s,transform 0.6s ease ${i*0.05}s`;
+                requestAnimationFrame(()=>requestAnimationFrame(()=>{e.target.style.opacity='1';e.target.style.transform='';}));
+                cardObs.unobserve(e.target);
+            }
+        });
+    },{threshold:0.05});
+    document.querySelectorAll('#mainPage .city-card').forEach(c=>cardObs.observe(c));
+
+    // nav scroll
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        if(nav) nav.style.boxShadow = window.scrollY>50 ? '0 0 40px rgba(255,107,0,0.5)' : '0 0 30px rgba(255,107,0,0.4)';
+    });
+}
+
+// ============================
+// WORLD TAB SWITCH
+// ============================
+function switchWorldTab(tab, btn) {
+    document.querySelectorAll('#world .tab-content').forEach(t=>t.classList.remove('active'));
+    const g = document.getElementById(tab+'-grid');
+    if(g) g.classList.add('active');
+    document.querySelectorAll('.realm-tab').forEach(t=>t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+}
+
+// ============================
+// MOBILE MENU
+// ============================
+function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+
+// ============================
+// SEARCH FILTER
+// ============================
+function filterCities() {
+    const val = document.getElementById('searchIndia').value.toLowerCase().trim();
+    document.querySelectorAll('#india-grid .city-card').forEach(card => {
+        const name = (card.querySelector('.city-name')?.textContent||'').toLowerCase();
+        const tag  = (card.querySelector('.city-country-tag')?.textContent||'').toLowerCase();
+        card.style.display = (!val || name.includes(val) || tag.includes(val)) ? '' : 'none';
+    });
+}
+
+// ============================
+// NEWSLETTER
+// ============================
+function subscribeNewsletter() {
+    const email = document.getElementById('newsletterEmail').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('⚠ INVALID','Enter a valid email address, warrior!','error'); return; }
+    document.getElementById('newsletterEmail').value = '';
+    showToast('⚔ WELCOME TO THE GUILD!','Exclusive deals coming your way!','success');
+}
+
+// ============================
+// CITY MODAL DATA
+// ============================
+const cityDB = {
+    mumbai:{tag:'Maharashtra, India',title:'Mumbai — The Dream Kingdom',img:'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&q=85',desc:'Mumbai, the financial capital of India, is a city that never sleeps. From the majestic Gateway of India to the bustling streets, from Bollywood studios to Marine Drive — this city is a battlefield where dreams are won and lost every single day.',highlights:[{icon:'🏛️',label:'Must Visit',value:'Gateway of India'},{icon:'🎬',label:'Famous For',value:'Bollywood'},{icon:'🌡️',label:'Best Time',value:'Oct - Feb'},{icon:'✈️',label:'Airport',value:'Chhatrapati Shivaji'},{icon:'🏨',label:'Top Hotel',value:'Taj Mahal Palace'},{icon:'🍛',label:'Local Food',value:'Vada Pav, Pav Bhaji'}]},
+    delhi:{tag:'Delhi, India',title:'New Delhi — The Eternal Capital',img:'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&q=85',desc:'Delhi has been the seat of power for countless empires. From the Mughal fortresses of Old Delhi to Lutyens\' Delhi, this city layers history upon history. The Red Fort stands as testament to warriors and emperors who shaped this subcontinent.',highlights:[{icon:'🏰',label:'Must Visit',value:'Red Fort & Qutub Minar'},{icon:'👑',label:'Famous For',value:'Historical Monuments'},{icon:'🌡️',label:'Best Time',value:'Oct - Mar'},{icon:'✈️',label:'Airport',value:'Indira Gandhi Intl.'},{icon:'🏨',label:'Top Hotel',value:'The Imperial'},{icon:'🍛',label:'Local Food',value:'Butter Chicken, Chole Bhature'}]},
+    agra:{tag:'Uttar Pradesh, India',title:'Agra — Love\'s Eternal Monument',img:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&q=85',desc:'Agra is home to the most magnificent monument ever built — the Taj Mahal. Emperor Shah Jahan channeled grief into this immortal structure of white marble that took 22 years to complete.',highlights:[{icon:'🕌',label:'Must Visit',value:'Taj Mahal'},{icon:'💎',label:'Famous For',value:'Mughal Architecture'},{icon:'🌡️',label:'Best Time',value:'Oct - Feb'},{icon:'✈️',label:'Airport',value:'Agra Airport'},{icon:'🏨',label:'Top Hotel',value:'ITC Mughal'},{icon:'🍬',label:'Local Food',value:'Petha, Dalmoth'}]},
+    varanasi:{tag:'Uttar Pradesh, India',title:'Varanasi — City of Eternal Light',img:'https://images.unsplash.com/photo-1561361058-c24e01de1e5b?w=800&q=85',desc:'Varanasi is one of the oldest living cities on Earth. On the sacred banks of the Ganges, pilgrims seek liberation. The evening Ganga Aarti — a ceremony of fire, bells, and devotion — is a spectacle that moves even the hardest warrior\'s heart.',highlights:[{icon:'🔥',label:'Must Visit',value:'Dashashwamedh Ghat Aarti'},{icon:'🕉️',label:'Famous For',value:'Spiritual Heritage'},{icon:'🌡️',label:'Best Time',value:'Oct - Mar'},{icon:'✈️',label:'Airport',value:'Lal Bahadur Shastri'},{icon:'🏨',label:'Top Hotel',value:'Brijrama Palace'},{icon:'🥛',label:'Local Food',value:'Kachori, Lassi, Malaiyyo'}]},
+    jaipur:{tag:'Rajasthan, India',title:'Jaipur — The Pink Warrior City',img:'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=85',desc:'Jaipur, the Pink City of Rajasthan, is a city of warriors and royals. The Amber Fort perches magnificently on a hill, the Hawa Mahal watches over bustling bazaars, and the City Palace stands as a monument to Rajput valor.',highlights:[{icon:'🏯',label:'Must Visit',value:'Amber Fort & Hawa Mahal'},{icon:'🌸',label:'Famous For',value:'Pink Architecture'},{icon:'🌡️',label:'Best Time',value:'Oct - Mar'},{icon:'✈️',label:'Airport',value:'Jaipur International'},{icon:'🏨',label:'Top Hotel',value:'Rambagh Palace'},{icon:'🍱',label:'Local Food',value:'Dal Baati Churma'}]},
+    kerala:{tag:'Kerala, India',title:'Kerala — God\'s Own Battlefield',img:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=85',desc:'Kerala is where verdant nature wages a beautiful battle against tranquility. The backwaters of Alleppey, the tea gardens of Munnar, and the ancient spice routes make this state a realm apart.',highlights:[{icon:'🚤',label:'Must Visit',value:'Alleppey Backwaters'},{icon:'🌿',label:'Famous For',value:'Backwaters & Spices'},{icon:'🌡️',label:'Best Time',value:'Sep - Mar'},{icon:'✈️',label:'Airport',value:'Cochin International'},{icon:'🏨',label:'Top Hotel',value:'Kumarakom Lake Resort'},{icon:'🥥',label:'Local Food',value:'Appam, Fish Curry'}]},
+    goa:{tag:'Goa, India',title:'Goa — The Warrior\'s Paradise',img:'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=85',desc:'Goa is where warriors lay down their weapons and let the golden sun wash over them. Portuguese colonial churches, vibrant beach shacks, world-class nightlife, and pristine beaches make Goa the ultimate reward.',highlights:[{icon:'🏖️',label:'Must Visit',value:'Baga & Anjuna Beach'},{icon:'🎉',label:'Famous For',value:'Beaches & Nightlife'},{icon:'🌡️',label:'Best Time',value:'Nov - Feb'},{icon:'✈️',label:'Airport',value:'Dabolim Airport'},{icon:'🏨',label:'Top Hotel',value:'Taj Exotica'},{icon:'🦐',label:'Local Food',value:'Goan Fish Curry, Prawn Balchao'}]},
+    ladakh:{tag:'Ladakh, India',title:'Ladakh — The Rooftop Realm',img:'https://images.unsplash.com/photo-1609766418204-94aae0ecfdfc?w=800&q=85',desc:'Ladakh is not a destination — it is a test of warrior\'s endurance. At 3,500 meters above sea level, the electric-blue Pangong Lake stretching into Tibet, ancient Buddhist monasteries clinging to cliffsides, and skies where the Milky Way blazes overhead — Ladakh demands absolute respect.',highlights:[{icon:'🏔️',label:'Must Visit',value:'Pangong Lake & Nubra Valley'},{icon:'☸️',label:'Famous For',value:'Buddhist Culture & Mountains'},{icon:'🌡️',label:'Best Time',value:'Jun - Sep'},{icon:'✈️',label:'Airport',value:'Leh Kushok Bakula'},{icon:'🏨',label:'Top Hotel',value:'The Grand Dragon'},{icon:'🍜',label:'Local Food',value:'Thukpa, Momos, Skyu'}]},
+    mysore:{tag:'Karnataka, India',title:'Mysore — Palace of Legends',img:'https://images.unsplash.com/photo-1592549585866-486f4b788b3a?w=800&q=85',desc:'Mysore is a city of regal splendor. The Mysore Palace is illuminated by 97,000 light bulbs during Dasara festival, visible from miles away. Built inthe Indo-Saracenic style, the palace is a testament to the opulence of the Wodeyar dynasty and their legendary battles against colonial forces.',highlights:[{icon:'🏰',label:'Must Visit',value:'Mysore Palace'},{icon:'🎉',label:'Famous For',value:'Dasara Festival'},{icon:'🌡️',label:'Best Time',value:'Sep - Oct'},{icon:'✈️',label:'Airport',value:'Mysore Airport'},{icon:'🏨',label:'Top Hotel',value:'Radisson Blu Plaza'},{icon:'🍛',label:'Local Food',value:'Mysore Masala Dosa, Mysore Pak'}]},
+    amritsar:{tag:'Punjab, India',title:'Amritsar — The Golden Sanctuary',img:'https://images.unsplash.com/photo-1609340080611-40ecf0a6efee?w=800&q=85',desc:'Amritsar is the spiritual heart of the Sikh faith. The Golden Temple, or Harmandir Sahib, is a sanctuary of gold and marble that reflects in the sacred pool. Pilgrims from around the world come to this city to seek blessings and witness the mesmerizing Palki Sahib ceremony.',highlights:[{icon:'🕌',label:'Must Visit',value:'Golden Temple'},{icon:'🙏',label:'Famous For',value:'Sikh Spirituality'},{icon:'🌡️',label:'Best Time',value:'Nov - Mar'},{icon:'✈️',label:'Airport',value:'Sri Guru Ram Dass Jee Intl.'},{icon:'🏨',label:'Top Hotel',value:'Taj Swarna'},{icon:'🍲',label:'Local Food',value:'Amritsari Kulcha, Langar'}]},
+    kolkata:{tag:'West Bengal, India',title:'Kolkata — The City of Joyful Warriors',img:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=85',desc:'Kolkata is a city of intellectual warriors and cultural revolutionaries. The majestic Victoria Memorial, the bustling New Market, and the vibrant Durga Puja festival make Kolkata a realm where art, history, and resilience collide.',highlights:[{icon:'🏛️',label:'Must Visit',value:'Victoria Memorial & Howrah Bridge'},{icon:'🎨',label:'Famous For',value:'Art & Culture'},{icon:'🌡️',label:'Best Time',value:'Oct - Feb'},{icon:'✈️',label:'Airport',value:'Netaji Subhas Chandra Bose Intl.'},{icon:'🏨',label:'Top Hotel',value:'The Oberoi Grand'},{icon:'🍛',label:'Local Food',value:'Rosogolla, Kathi Roll'}]},
+    tokyo:{tag:'Tokyo, Japan',title:'Tokyo — The Neon Shogun City',img:'https://images.unsplash.com/photo-1549692520-acc6669e2f0c?w=800&q=85',desc:'Tokyo is a city of contrasts where ancient traditions meet cutting-edge technology. From the serene Meiji Shrine to the bustling Shibuya Crossing, Tokyo is a realm where samurai spirit and futuristic innovation coexist.',highlights:[{icon:'🗼',label:'Must Visit',value:'Shibuya Crossing & Meiji Shrine'},{icon:'🍣',label:'Famous For',value:'Sushi & Technology'},{icon:'🌡️',label:'Best Time',value:'Mar - May, Sep - Nov'},{icon:'✈️',label:'Airport',value:'Haneda & Narita'},{icon:'🏨',label:'Top Hotel',value:'Park Hyatt Tokyo'},{icon:'🍜',label:'Local Food',value:'Ramen, Sushi'}]},
+    paris:{tag:'Paris, France',title:'Paris — The City of Eternal Romance',img:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=85',desc:'Paris is a city where every street corner tells a story of love and revolution. The Eiffel Tower stands as a beacon of romance, while the Louvre houses timeless masterpieces. Paris is a realm where passion and history intertwine.',highlights:[{icon:'🗼',label:'Must Visit',value:'Eiffel Tower & Louvre'},{icon:'🥐',label:'Famous For',value:'Romance & Cuisine'},{icon:'🌡️',label:'Best Time',value:'Apr - Jun, Sep - Nov'},{icon:'✈️',label:'Airport',value:'Charles de Gaulle'},{icon:'🏨',label:'Top Hotel',value:'Le Meurice'},{icon:'🍷',label:'Local Food',value:'Croissants, Escargot'}]},
+    dubai:{tag:'Dubai, UAE',title:'Dubai — The Desert Mirage',img:'https://images.unsplash.com/photo-1508051123996-69f8caf4891e?w=800&q=85',desc:'Dubai is a city that rose from the desert sands to become a global metropolis. The Burj Khalifa pierces the sky, while the Palm Jumeirah extends into the sea. Dubai is a realm of opulence and innovation, where every day feels like a victory.',highlights:[{icon:'🏙️',label:'Must Visit',value:'Burj Khalifa & Palm Jumeirah'},{icon:'💎',label:'Famous For',value:'Luxury & Innovation'},{icon:'🌡️',label:'Best Time',value:'Nov - Mar'},{icon:'✈️',label:'Airport',value:'Dubai Intl.'},{icon:'🏨',label:'Top Hotel',value:'Burj Al Arab'},{icon:'🍽️',label:'Local Food',value:'Shawarma, Al Harees'}]},
+    rome:{tag:'Rome, Italy',title:'Rome — The Eternal City of Warriors',img:'https://images.unsplash.com/photo-1549893079-1c0cdbb4d8e7?w=800&q=85',desc:'Rome is a city where ancient warriors and emperors left their mark in stone. The Colosseum echoes with the roars of gladiators, while the Vatican stands as a testament to spiritual power. Rome is a realm where history and legend collide.',highlights:[{icon:'🏛️',label:'Must Visit',value:'Colosseum & Vatican'},{icon:'🍝',label:'Famous For',value:'History & Cuisine'},{icon:'🌡️',label:'Best Time',value:'Apr - Jun, Sep - Oct'},{icon:'✈️',label:'Airport',value:'Fiumicino Airport'},{icon:'🏨',label:'Top Hotel',value:'Hotel de Russie'},{icon:'🍕',label:'Local Food',value:'Pizza, Carbonara'}]},
+    london:{tag:'London, UK',title:'London — The Foggy Fortress',img:'https://images.unsplash.com/photo-1509395062183-67c6913ccaa6?w=800&q=85',desc:'London is a city of resilience and reinvention. The Tower of London stands as a fortress of history, while the modern skyline symbolizes innovation. London is a realm where tradition and progress wage an eternal battle.',highlights:[{icon:'🏰',label:'Must Visit',value:'Tower of London & British Museum'},{icon:'🎭',label:'Famous For',value:'Theatre & History'},{icon:'🌡️',label:'Best Time',value:'Apr - Jun, Sep - Nov'},{icon:'✈️',label:'Airport',value:'Heathrow & Gatwick'},{icon:'🏨',label:'Top Hotel',value:'The Savoy'},{icon:'🍽️',label:'Local Food',value:'Fish & Chips, Sunday Roast'}]},
+    bali:{tag:'Bali, Indonesia',title:'Bali — The Island of the Gods',img:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=85',desc:'Bali is a realm of spiritual warriors and natural beauty. From the terraced rice paddies to the sacred temples, Bali offers a sanctuary for those seeking balance and enlightenment.',highlights:[{icon:'🏝️',label:'Must Visit',value:'Ubud & Tanah Lot'},{icon:'🌺',label:'Famous For',value:'Spirituality & Nature'},{icon:'🌡️',label:'Best Time',value:'Apr - Oct'},{icon:'✈️',label:'Airport',value:'Ngurah Rai Intl.'},{icon:'🏨',label:'Top Hotel',value:'Four Seasons Resort Bali'},{icon:'🍛',label:'Local Food',value:'Nasi Goreng, Babi Guling'}]},
+    singapore:{tag:'Singapore, SG',title:'Singapore — The Lion City',img:'https://images.unsplash.com/photo-1494526585095-c41746248156?w=800&q=85',desc:'Singapore is a city of innovation and multicultural harmony. The Marina Bay Sands stands as a beacon of modernity, while the vibrant neighborhoods reflect a blend of cultures. Singapore is a realm where progress and tradition coexist.',highlights:[{icon:'🏙️',label:'Must Visit',value:'Marina Bay Sands & Gardens by the Bay'},{icon:'🍜',label:'Famous For',value:'Cuisine & Innovation'},{icon:'🌡️',label:'Best Time',value:'Feb - Apr'},{icon:'✈️',label:'Airport',value:'Changi Airport'},{icon:'🏨',label:'Top Hotel',value:'Marina Bay Sands'},{icon:'🍽️',label:'Local Food',value:'Hainanese Chicken Rice, Chili Crab'}]},
+    newyork:{tag:'New York, USA',title:'New York — The Concrete Jungle',img:'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=85',desc:'New York is a city of dreams and relentless energy. The Statue of Liberty stands as a symbol of freedom, while Times Square dazzles with neon lights. New York is a realm where ambition and diversity collide.',highlights:[{icon:'🗽',label:'Must Visit',value:'Statue of Liberty & Central Park'},{icon:'🎭',label:'Famous For',value:'Broadway & Diversity'},{icon:'🌡️',label:'Best Time',value:'Apr - Jun, Sep - Nov'},{icon:'✈️',label:'Airport',value:'JFK & LaGuardia'},{icon:'🏨',label:'Top Hotel',value:'The Plaza'},{icon:'🍎',label:'Local Food',value:'Bagels, New York Pizza'}]},
+    sydney:{tag:'Sydney, Australia',title:'Sydney — The Harbour City',img:'https://images.unsplash.com/photo-1506973035872-a4ec16b8b98c?w=800&q=85',desc:'Sydney is a city of natural beauty and vibrant culture. The Sydney Opera House and Harbour Bridge define its skyline, while the beaches offer a sanctuary for warriors seeking respite.',highlights:[{icon:'🌉',label:'Must Visit',value:'Sydney Opera House & Harbour Bridge'},{icon:'🏖️',label:'Famous For',value:'Beaches & Culture'},{icon:'🌡️',label:'Best Time',value:'Sep - Nov, Mar - May'},{icon:'✈️',label:'Airport',value:'Sydney Kingsford Smith'},{icon:'🏨',label:'Top Hotel',value:'Park Hyatt Sydney'},{icon:'🍤',label:'Local Food',value:'Pavlova, Barramundi'}]}};
+    </script>
